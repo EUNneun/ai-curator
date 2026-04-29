@@ -61,7 +61,7 @@ jobs:
         run: |
           git config user.email "action@github.com"
           git config user.name "GitHub Actions"
-          git pull --rebase origin main
+          git pull --rebase --autostash origin main
           git add output/curated_videos.json \
                   .claude/skills/video-curator/references/curation_criteria.json \
                   output/site/feedback.json || true
