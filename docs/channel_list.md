@@ -8,16 +8,13 @@
 
 | 채널명 | Channel ID 또는 @handle |
 |--------|------------------------|
-| 일잘러 장피엠 | @jangpm |
+| 일잘러 장피엠 | UCV_fT7iybE1rQeVGW-qLCiA |
 
 ## 영어 AI 채널
 
 | 채널명 | Channel ID 또는 @handle |
 |--------|------------------------|
-| AI Explained | @aiexplained-official |
 | Matt Wolfe | @mreflow |
-| Fireship | @Fireship |
 
 ---
 **채널 추가 방법**: 유튜브 채널 페이지 주소의 `@...` 부분을 그대로 입력하세요.
-예: `https://youtube.com/@jangpm` → `@jangpm`
