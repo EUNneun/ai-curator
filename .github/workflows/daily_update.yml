@@ -61,7 +61,8 @@ jobs:
         run: |
           git config user.email "action@github.com"
           git config user.name "GitHub Actions"
-          git add output/curated_videos.json output/run_log.json \
+          git pull --rebase origin main
+          git add output/curated_videos.json \
                   .claude/skills/video-curator/references/curation_criteria.json \
                   output/site/feedback.json || true
           git diff --cached --quiet || git commit -m "chore: daily curation update $(date -u '+%Y-%m-%d')"
