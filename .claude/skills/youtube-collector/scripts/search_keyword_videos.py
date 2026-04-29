@@ -42,7 +42,6 @@ def search_videos(youtube, keyword, published_after):
         type="video",
         order="relevance",
         publishedAfter=published_after,
-        relevanceLanguage="en",
         maxResults=MAX_RESULTS_PER_KEYWORD,
     ).execute()
 

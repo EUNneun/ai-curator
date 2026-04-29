@@ -19,18 +19,36 @@ MAX_RESULTS_PER_CHANNEL = 10
 LOOKBACK_HOURS = 26
 
 
-def load_channel_ids():
+def load_channels():
+    """channel_list.md에서 채널 목록을 파싱합니다.
+    UC... 형식과 @handle 형식 모두 지원합니다.
+    """
     channels = []
     try:
         with open(CHANNEL_LIST_PATH, encoding="utf-8") as f:
             for line in f:
-                # 형식: | 채널명 | UCxxxxxxxxxxxxxxxxxxxxxxxx |
+                # UC... 형식: | 채널명 | UCxxxxxxxxxxxxxxxxxxxxxxxx |
                 m = re.search(r'\|\s*([^|]+)\s*\|\s*(UC[A-Za-z0-9_-]{22})\s*\|', line)
                 if m:
-                    channels.append({"name": m.group(1).strip(), "id": m.group(2).strip()})
+                    channels.append({"name": m.group(1).strip(), "id": m.group(2).strip(), "type": "id"})
+                    continue
+                # @handle 형식: | 채널명 | @handle |
+                m = re.search(r'\|\s*([^|]+)\s*\|\s*(@[A-Za-z0-9_-]+)\s*\|', line)
+                if m:
+                    channels.append({"name": m.group(1).strip(), "handle": m.group(2).strip(), "type": "handle"})
     except FileNotFoundError:
         print(f"WARN: {CHANNEL_LIST_PATH} not found", file=sys.stderr)
     return channels
+
+
+def resolve_handle(youtube, handle):
+    """@handle을 채널 ID(UC...)로 변환합니다."""
+    handle_clean = handle.lstrip("@")
+    response = youtube.channels().list(part="id", forHandle=handle_clean).execute()
+    items = response.get("items", [])
+    if items:
+        return items[0]["id"]
+    return None
 
 
 def fetch_channel_videos(youtube, channel_id, published_after):
@@ -66,7 +84,7 @@ def main():
         print("ERROR: YOUTUBE_API_KEY environment variable not set", file=sys.stderr)
         sys.exit(1)
 
-    channels = load_channel_ids()
+    channels = load_channels()
     if not channels:
         print("No channels configured in docs/channel_list.md")
         os.makedirs("output", exist_ok=True)
@@ -78,8 +96,21 @@ def main():
     youtube = build("youtube", "v3", developerKey=api_key)
     published_after = (datetime.now(timezone.utc) - timedelta(hours=LOOKBACK_HOURS)).strftime("%Y-%m-%dT%H:%M:%SZ")
 
+    # @handle → UC... 변환
+    for ch in channels:
+        if ch["type"] == "handle":
+            resolved = resolve_handle(youtube, ch["handle"])
+            if resolved:
+                ch["id"] = resolved
+                print(f"  [{ch['name']}] 핸들 {ch['handle']} → {resolved}")
+            else:
+                ch["id"] = None
+                print(f"  WARN: [{ch['name']}] 핸들 {ch['handle']} 변환 실패", file=sys.stderr)
+
     all_videos = []
     for ch in channels:
+        if not ch.get("id"):
+            continue
         for attempt in range(3):
             try:
                 videos = fetch_channel_videos(youtube, ch["id"], published_after)
