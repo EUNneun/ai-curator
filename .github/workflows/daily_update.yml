@@ -43,6 +43,9 @@ jobs:
       - name: STEP 3 — 적합성 판단 (video-curator)
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          # Anthropic API 키 없으면 DUMMY_MODE=true 유지 (모든 영상 include 처리)
+          # API 키 등록 후 아래 값을 'false'로 변경하세요
+          DUMMY_MODE: 'true'
         run: python .claude/skills/video-curator/scripts/run_curator.py
 
       - name: STEP 4 — 피드백 반영 (조건부)

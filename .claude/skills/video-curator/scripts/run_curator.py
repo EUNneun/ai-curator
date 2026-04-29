@@ -1,16 +1,22 @@
 #!/usr/bin/env python3
-"""video-curator: Anthropic API로 신규 영상의 기획자 적합성을 판단합니다."""
+"""video-curator: Anthropic API로 신규 영상의 기획자 적합성을 판단합니다.
+
+DUMMY_MODE=true 환경변수 설정 시 API 없이 모든 영상을 include로 처리합니다.
+"""
 import json
 import os
 import subprocess
 import sys
 from datetime import datetime, timezone
 
-try:
-    import anthropic
-except ImportError:
-    print("ERROR: anthropic not installed. Run: pip install anthropic", file=sys.stderr)
-    sys.exit(1)
+DUMMY_MODE = os.environ.get("DUMMY_MODE", "false").lower() == "true"
+
+if not DUMMY_MODE:
+    try:
+        import anthropic
+    except ImportError:
+        print("ERROR: anthropic not installed. Run: pip install anthropic", file=sys.stderr)
+        sys.exit(1)
 
 NEW_VIDEOS_PATH = "output/new_videos.json"
 CRITERIA_PATH = ".claude/skills/video-curator/references/curation_criteria.json"
@@ -120,29 +126,50 @@ def main():
         return
 
     criteria = load_criteria()
-    api_key = os.environ.get("ANTHROPIC_API_KEY")
-    if not api_key:
-        print("ERROR: ANTHROPIC_API_KEY not set", file=sys.stderr)
-        sys.exit(1)
-
-    client = anthropic.Anthropic(api_key=api_key)
     all_scored = []
 
-    for i in range(0, len(new_videos), BATCH_SIZE):
-        batch = new_videos[i:i + BATCH_SIZE]
-        print(f"  배치 {i // BATCH_SIZE + 1}/{(len(new_videos) - 1) // BATCH_SIZE + 1}: {len(batch)}개 평가 중...")
+    if DUMMY_MODE:
+        # API 없이 테스트: 모든 영상을 include로 처리
+        print("  [더미 모드] Anthropic API 없이 실행 중...")
+        categories = criteria["categories"]
+        for i, v in enumerate(new_videos):
+            all_scored.append({
+                "video_id": v["video_id"],
+                "title": v.get("title", ""),
+                "channel": v.get("channel", ""),
+                "published_at": v.get("published_at", ""),
+                "url": v.get("url", f"https://youtube.com/watch?v={v['video_id']}"),
+                "thumbnail": v.get("thumbnail", f"https://img.youtube.com/vi/{v['video_id']}/mqdefault.jpg"),
+                "category": categories[i % len(categories)],
+                "score": 75,
+                "summary": "API 키 연결 후 실제 요약이 생성됩니다.",
+                "verdict": "include",
+                "exclude_reason": None,
+            })
+        print(f"  [더미 모드] {len(all_scored)}개 영상 모두 include 처리")
+    else:
+        api_key = os.environ.get("ANTHROPIC_API_KEY")
+        if not api_key:
+            print("ERROR: ANTHROPIC_API_KEY not set", file=sys.stderr)
+            sys.exit(1)
 
-        for attempt in range(3):
-            try:
-                scored = evaluate_batch(client, batch, criteria)
-                all_scored.extend(scored)
-                print(f"    → {sum(1 for v in scored if v.get('verdict') == 'include')}개 include")
-                break
-            except Exception as e:
-                if attempt == 2:
-                    print(f"  ERROR: 배치 평가 실패 (3회 시도) - {e}", file=sys.stderr)
-                else:
-                    print(f"  WARN: 재시도 {attempt + 1}/3... ({e})", file=sys.stderr)
+        client = anthropic.Anthropic(api_key=api_key)
+
+        for i in range(0, len(new_videos), BATCH_SIZE):
+            batch = new_videos[i:i + BATCH_SIZE]
+            print(f"  배치 {i // BATCH_SIZE + 1}/{(len(new_videos) - 1) // BATCH_SIZE + 1}: {len(batch)}개 평가 중...")
+
+            for attempt in range(3):
+                try:
+                    scored = evaluate_batch(client, batch, criteria)
+                    all_scored.extend(scored)
+                    print(f"    → {sum(1 for v in scored if v.get('verdict') == 'include')}개 include")
+                    break
+                except Exception as e:
+                    if attempt == 2:
+                        print(f"  ERROR: 배치 평가 실패 (3회 시도) - {e}", file=sys.stderr)
+                    else:
+                        print(f"  WARN: 재시도 {attempt + 1}/3... ({e})", file=sys.stderr)
 
     with open(SCORED_VIDEOS_PATH, "w", encoding="utf-8") as f:
         json.dump(all_scored, f, ensure_ascii=False, indent=2)
