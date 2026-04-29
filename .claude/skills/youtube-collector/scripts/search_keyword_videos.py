@@ -42,11 +42,15 @@ def search_videos(youtube, keyword, published_after):
         type="video",
         order="relevance",
         publishedAfter=published_after,
+        videoDuration="medium",  # 4분 이상 (숏츠 제외)
         maxResults=MAX_RESULTS_PER_KEYWORD,
     ).execute()
 
     videos = []
     for item in response.get("items", []):
+        title = item["snippet"].get("title", "")
+        if any(tag in title.lower() for tag in ["#shorts", "#쇼츠", "#short"]):
+            continue
         snippet = item["snippet"]
         videos.append({
             "video_id": item["id"]["videoId"],

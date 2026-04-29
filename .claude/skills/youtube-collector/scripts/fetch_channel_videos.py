@@ -58,12 +58,17 @@ def fetch_channel_videos(youtube, channel_id, published_after):
         type="video",
         order="date",
         publishedAfter=published_after,
+        videoDuration="medium",  # 4분 이상 (숏츠 제외)
         maxResults=MAX_RESULTS_PER_CHANNEL,
     ).execute()
 
     videos = []
     for item in response.get("items", []):
         snippet = item["snippet"]
+        title = snippet.get("title", "")
+        # 제목에 숏츠 태그 있으면 추가 필터링
+        if any(tag in title.lower() for tag in ["#shorts", "#쇼츠", "#short"]):
+            continue
         videos.append({
             "video_id": item["id"]["videoId"],
             "title": snippet["title"],
