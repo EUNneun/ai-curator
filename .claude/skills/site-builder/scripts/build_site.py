@@ -4,7 +4,9 @@ import html
 import json
 import os
 import sys
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
+
+KST = timezone(timedelta(hours=9))
 
 CURATED_PATH = "output/curated_videos.json"
 SITE_DIR = "output/site"
@@ -67,7 +69,7 @@ def build_page(videos, css, js, title_suffix=""):
         for c in CATEGORIES
     )
     cards = "\n".join(video_card(v) for v in videos)
-    updated = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+    updated = datetime.now(KST).strftime("%Y-%m-%d %H:%M KST")
     idx_json = json.dumps(search_index(videos), ensure_ascii=False)
     page_title = f"AI 영상 큐레이션{title_suffix}"
     return f"""<!DOCTYPE html>
