@@ -1,0 +1,44 @@
+{
+  "version": "1.0",
+  "last_updated": "2026-04-29",
+  "update_reason": "초기 기준",
+  "categories": [
+    "AI 툴 활용",
+    "AI 트렌드",
+    "업무 자동화",
+    "프롬프트 엔지니어링",
+    "기획 인사이트"
+  ],
+  "inclusion_rules": {
+    "target_audience": "기획자 (PM, 서비스 기획, 콘텐츠 기획)",
+    "preferred_topics": [
+      "AI 툴 실무 활용 (ChatGPT, Claude, Gemini, Copilot 등)",
+      "기획 프로세스에 AI 적용하는 방법",
+      "업무 자동화 및 생산성 향상",
+      "프롬프트 엔지니어링 실전 기법",
+      "AI 트렌드 및 비즈니스 인사이트",
+      "노코드/로우코드 AI 도구",
+      "AI 기반 사용자 리서치 및 분석",
+      "AI 전략 및 로드맵 수립"
+    ],
+    "excluded_topics": [
+      "코딩/개발 중심 (Python, JavaScript 튜토리얼 등)",
+      "AI 아트 및 이미지 생성 (Midjourney, Stable Diffusion 등)",
+      "게임 AI",
+      "AI 하드웨어/칩셋",
+      "학술 논문 리뷰",
+      "AI 투자/주식"
+    ]
+  },
+  "scoring_weights": {
+    "planner_relevance": 0.5,
+    "practicality": 0.3,
+    "recency": 0.2
+  },
+  "threshold": 70,
+  "feedback_stats": {
+    "total_good": 0,
+    "total_bad": 0,
+    "processed_count": 0
+  }
+}
