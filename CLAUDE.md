@@ -103,3 +103,33 @@ bash .claude/skills/site-builder/scripts/deploy.sh
 |---------|--------|------|
 | video-curator | new_videos.json ≥ 1건 | .claude/agents/video-curator/AGENT.md |
 | feedback-learner | 미처리 피드백 ≥ 10건 | .claude/agents/feedback-learner/AGENT.md |
+
+---
+
+## 현재 운영 현황 (2026-04-30 기준)
+
+### API 키 상태
+- `YOUTUBE_API_KEY`: 등록 완료 (GitHub Secrets)
+- `ANTHROPIC_API_KEY`: 미등록 → **DUMMY_MODE=true** 로 운영 중 (모든 영상 include, 요약 없음)
+  - Anthropic API 키 등록 후 `daily_update.yml`의 `DUMMY_MODE: 'true'` → `'false'` 로 변경 필요
+
+### 수집 설정
+- 수집 기간: **7일** (초기 데이터 수집용, 안정화 후 26시간으로 변경 예정)
+- 숏츠 제외: `videoDuration=medium` (4분 이상만 수집)
+- 모니터링 채널: 일잘러 장피엠(`UCV_fT7iybE1rQeVGW-qLCiA`), Matt Wolfe(`@mreflow`)
+- 검색 키워드: `docs/keyword_list.md` 참고
+
+### YouTube API 할당량
+- 하루 10,000유닛 제한, 리셋 시각: **매일 오후 4시 KST**
+- 오늘(2026-04-30) 테스트 반복 실행으로 할당량 소진 → 내일 오후 4시 이후 정상화
+- **다음 작업**: API 키 2개로 할당량 2배 확보 (채널 수집용 / 키워드 검색용 분리)
+  1. Google Cloud에서 프로젝트 추가 생성 → API 키 발급
+  2. GitHub Secrets에 `YOUTUBE_API_KEY_2` 추가
+  3. `daily_update.yml` 수정: 키워드 검색 STEP에 `YOUTUBE_API_KEY_2` 사용
+
+### 배포 주소
+- https://EUNneun.github.io/ai-curator/
+
+### 다음 구현 예정 (Phase 2)
+- 카테고리 필터 + 검색 기능 UX 개선
+- GOOD/BAD 피드백 버튼 Formspree 연동
