@@ -16,7 +16,7 @@ except ImportError:
 CHANNEL_LIST_PATH = "docs/channel_list.md"
 OUTPUT_PATH = "output/raw_videos.json"
 MAX_RESULTS_PER_CHANNEL = 10
-LOOKBACK_HOURS = 26
+LOOKBACK_HOURS = 26 * 7  # 7일 (초기 데이터 수집용, 안정화 후 26으로 변경)
 
 
 def load_channels():
