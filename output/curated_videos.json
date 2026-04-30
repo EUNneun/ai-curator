@@ -1,5 +1,47 @@
 [
   {
+    "video_id": "fdXCgvzF1HM",
+    "title": "‘클로드 디자인’ 실전 리뷰, 프롬프트 한줄로 앱 디자인 완성!",
+    "channel": "브랜드마이트",
+    "published_at": "2026-04-23T07:44:09Z",
+    "url": "https://youtube.com/watch?v=fdXCgvzF1HM",
+    "thumbnail": "https://i.ytimg.com/vi/fdXCgvzF1HM/mqdefault.jpg",
+    "category": "AI 툴 활용",
+    "score": 75,
+    "summary": "API 키 연결 후 실제 요약이 생성됩니다.",
+    "verdict": "include",
+    "exclude_reason": null,
+    "scored_at": "2026-04-30T00:29:15.384440+00:00"
+  },
+  {
+    "video_id": "D6wYV4D8QKw",
+    "title": "Accio Work AI Review (2026) – Automate Your Business with AI Agents",
+    "channel": "MATLAB TECH",
+    "published_at": "2026-04-27T05:08:28Z",
+    "url": "https://youtube.com/watch?v=D6wYV4D8QKw",
+    "thumbnail": "https://i.ytimg.com/vi/D6wYV4D8QKw/mqdefault.jpg",
+    "category": "AI 트렌드",
+    "score": 75,
+    "summary": "API 키 연결 후 실제 요약이 생성됩니다.",
+    "verdict": "include",
+    "exclude_reason": null,
+    "scored_at": "2026-04-30T00:29:15.384440+00:00"
+  },
+  {
+    "video_id": "KvrTS66faFo",
+    "title": "NotebookLM + Claude Just Replaced a $3,000/Month Team (For $0)",
+    "channel": "Nick Ponte",
+    "published_at": "2026-04-26T17:07:49Z",
+    "url": "https://youtube.com/watch?v=KvrTS66faFo",
+    "thumbnail": "https://i.ytimg.com/vi/KvrTS66faFo/mqdefault.jpg",
+    "category": "업무 자동화",
+    "score": 75,
+    "summary": "API 키 연결 후 실제 요약이 생성됩니다.",
+    "verdict": "include",
+    "exclude_reason": null,
+    "scored_at": "2026-04-30T00:29:15.384440+00:00"
+  },
+  {
     "video_id": "OBlJ0YHz2So",
     "title": "혼돈에서 명확함으로: 기획자 생존 가이드",
     "channel": "세균무기 germweapon",
