@@ -1,5 +1,19 @@
 [
   {
+    "video_id": "Elja5e5eEa0",
+    "title": "[선공개] AI가 직접 해부한 소네트 49 | 셰익스피어·피천득·정약용, 해방의 연대기 — NotebookLM 오버뷰",
+    "channel": "생명PD_논픽션다큐",
+    "published_at": "2026-04-26T08:00:12Z",
+    "url": "https://youtube.com/watch?v=Elja5e5eEa0",
+    "thumbnail": "https://i.ytimg.com/vi/Elja5e5eEa0/mqdefault.jpg",
+    "category": "AI 툴 활용",
+    "score": 75,
+    "summary": "API 키 연결 후 실제 요약이 생성됩니다.",
+    "verdict": "include",
+    "exclude_reason": null,
+    "scored_at": "2026-04-30T00:38:27.574360+00:00"
+  },
+  {
     "video_id": "fdXCgvzF1HM",
     "title": "‘클로드 디자인’ 실전 리뷰, 프롬프트 한줄로 앱 디자인 완성!",
     "channel": "브랜드마이트",
