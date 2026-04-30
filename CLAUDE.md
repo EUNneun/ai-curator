@@ -122,10 +122,10 @@ bash .claude/skills/site-builder/scripts/deploy.sh
 ### YouTube API 할당량
 - 하루 10,000유닛 제한, 리셋 시각: **매일 오후 4시 KST**
 - 오늘(2026-04-30) 테스트 반복 실행으로 할당량 소진 → 내일 오후 4시 이후 정상화
-- **다음 작업**: API 키 2개로 할당량 2배 확보 (채널 수집용 / 키워드 검색용 분리)
-  1. Google Cloud에서 프로젝트 추가 생성 → API 키 발급
-  2. GitHub Secrets에 `YOUTUBE_API_KEY_2` 추가
-  3. `daily_update.yml` 수정: 키워드 검색 STEP에 `YOUTUBE_API_KEY_2` 사용
+- **API 키 2개 분리 완료** (채널 수집용 `YOUTUBE_API_KEY` / 키워드 검색용 `YOUTUBE_API_KEY_2`)
+  - `daily_update.yml`: 키워드 검색 STEP → `YOUTUBE_API_KEY_2` 사용
+  - `search_keyword_videos.py`: `YOUTUBE_API_KEY_2` 우선, 없으면 `YOUTUBE_API_KEY` fallback (로컬 개발용)
+  - **유저 할 일**: Google Cloud 두 번째 프로젝트에서 API 키 발급 → GitHub Secrets에 `YOUTUBE_API_KEY_2` 등록
 
 ### 배포 주소
 - https://EUNneun.github.io/ai-curator/

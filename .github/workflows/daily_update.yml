@@ -31,10 +31,11 @@ jobs:
         env:
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
         run: python .claude/skills/youtube-collector/scripts/fetch_channel_videos.py
+        continue-on-error: true
 
       - name: STEP 1 — 키워드 영상 검색
         env:
-          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+          YOUTUBE_API_KEY_2: ${{ secrets.YOUTUBE_API_KEY_2 }}
         run: python .claude/skills/youtube-collector/scripts/search_keyword_videos.py
 
       - name: STEP 2 — 중복 제거

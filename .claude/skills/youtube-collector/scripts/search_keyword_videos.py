@@ -68,9 +68,9 @@ def search_videos(youtube, keyword, published_after):
 
 
 def main():
-    api_key = os.environ.get("YOUTUBE_API_KEY")
+    api_key = os.environ.get("YOUTUBE_API_KEY_2") or os.environ.get("YOUTUBE_API_KEY")
     if not api_key:
-        print("ERROR: YOUTUBE_API_KEY environment variable not set", file=sys.stderr)
+        print("ERROR: YOUTUBE_API_KEY_2 (or YOUTUBE_API_KEY) environment variable not set", file=sys.stderr)
         sys.exit(1)
 
     keywords = load_keywords()
