@@ -1,5 +1,47 @@
 [
   {
+    "video_id": "SDyfo6A1ApY",
+    "title": "서울 직장인 Google AI 활용법 5단계와 ChatGPT 비교",
+    "channel": "Dawith_ai",
+    "published_at": "2026-05-20T00:54:27Z",
+    "url": "https://youtube.com/watch?v=SDyfo6A1ApY",
+    "thumbnail": "https://i.ytimg.com/vi/SDyfo6A1ApY/mqdefault.jpg",
+    "category": "AI 툴 활용",
+    "score": 75,
+    "summary": "API 키 연결 후 실제 요약이 생성됩니다.",
+    "verdict": "include",
+    "exclude_reason": null,
+    "scored_at": "2026-05-24T22:48:47.682543+00:00"
+  },
+  {
+    "video_id": "eXlUCTcZCc8",
+    "title": "Laid Off? Your 30-Day Survival Guide for Tech PMs! | AI Product Management",
+    "channel": "AI Product Management",
+    "published_at": "2026-05-18T19:00:26Z",
+    "url": "https://youtube.com/watch?v=eXlUCTcZCc8",
+    "thumbnail": "https://i.ytimg.com/vi/eXlUCTcZCc8/mqdefault.jpg",
+    "category": "AI 트렌드",
+    "score": 75,
+    "summary": "API 키 연결 후 실제 요약이 생성됩니다.",
+    "verdict": "include",
+    "exclude_reason": null,
+    "scored_at": "2026-05-24T22:48:47.682543+00:00"
+  },
+  {
+    "video_id": "UL9BFYIgMBY",
+    "title": "Agentix AI Agents AI Workflow Automation for Content Creation - AI Tools for Business Automation",
+    "channel": "iMitra",
+    "published_at": "2026-05-20T11:10:48Z",
+    "url": "https://youtube.com/watch?v=UL9BFYIgMBY",
+    "thumbnail": "https://i.ytimg.com/vi/UL9BFYIgMBY/mqdefault.jpg",
+    "category": "업무 자동화",
+    "score": 75,
+    "summary": "API 키 연결 후 실제 요약이 생성됩니다.",
+    "verdict": "include",
+    "exclude_reason": null,
+    "scored_at": "2026-05-24T22:48:47.682543+00:00"
+  },
+  {
     "video_id": "cquqqhfmTW8",
     "title": "[솔로 프레너의 첫걸음] 07강: 프롬프트 한 줄로 10초 만에 UI 시안 뽑기, 피그마 Make AI 활용법",
     "channel": "구디사는 개발자 9Diin",
