@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI 영상 큐레이션 — 프롬프트 엔지니어링 | 기획자를 위한 AI 유튜브</title>
+  <style>:root {
+  --primary: #2563eb;
+  --primary-dark: #1d4ed8;
+  --bg: #f8fafc;
+  --card-bg: #ffffff;
+  --text: #1e293b;
+  --muted: #64748b;
+  --border: #e2e8f0;
+  --tag-bg: #dbeafe;
+  --tag-text: #1d4ed8;
+  --good: #22c55e;
+  --bad: #ef4444;
+  --radius: 12px;
+  --shadow: 0 1px 3px rgba(0,0,0,.1), 0 1px 2px rgba(0,0,0,.06);
+  --shadow-hover: 0 4px 12px rgba(0,0,0,.12);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans KR', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* ── Header ── */
+header {
+  background: var(--primary);
+  color: white;
+  padding: 2rem 1.5rem 1.75rem;
+  text-align: center;
+}
+header h1 { font-size: 1.75rem; font-weight: 700; letter-spacing: -0.02em; }
+header .subtitle { opacity: .85; margin-top: .25rem; font-size: .95rem; }
+header .updated { font-size: .78rem; opacity: .65; margin-top: .5rem; }
+
+/* ── Navigation / Filters ── */
+.filter-nav {
+  background: white;
+  border-bottom: 1px solid var(--border);
+  padding: 1rem 1.5rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,.06);
+}
+
+.search-box input {
+  width: 100%;
+  padding: .5rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: .9rem;
+  outline: none;
+  transition: border-color .15s, box-shadow .15s;
+}
+.search-box input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(37,99,235,.12);
+}
+
+.tab-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem;
+}
+.tab-btn {
+  padding: .35rem .85rem;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: white;
+  color: var(--muted);
+  font-size: .83rem;
+  cursor: pointer;
+  transition: all .15s;
+  white-space: nowrap;
+}
+.tab-btn:hover { border-color: var(--primary); color: var(--primary); }
+.tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+/* ── Main grid ── */
+main { max-width: 1200px; margin: 0 auto; padding: 1.5rem; }
+
+.video-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.25rem;
+}
+
+/* ── Video card ── */
+.video-card {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  transition: transform .15s, box-shadow .15s;
+  display: flex;
+  flex-direction: column;
+}
+.video-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+}
+
+.thumbnail {
+  width: 100%;
+  aspect-ratio: 16/9;
+  object-fit: cover;
+  display: block;
+  background: var(--border);
+}
+
+.card-body {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: .5rem;
+}
+
+.category-tag {
+  display: inline-block;
+  background: var(--tag-bg);
+  color: var(--tag-text);
+  font-size: .72rem;
+  font-weight: 600;
+  padding: .2rem .6rem;
+  border-radius: 4px;
+  align-self: flex-start;
+}
+
+.card-body h3 {
+  font-size: .93rem;
+  font-weight: 600;
+  line-height: 1.45;
+}
+.card-body h3 a { color: var(--text); text-decoration: none; }
+.card-body h3 a:hover { color: var(--primary); }
+
+.summary {
+  font-size: .83rem;
+  color: var(--muted);
+  line-height: 1.55;
+  flex: 1;
+}
+
+.card-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: .75rem;
+  color: var(--muted);
+}
+
+.feedback-buttons {
+  display: flex;
+  gap: .5rem;
+  margin-top: .25rem;
+}
+.btn-good, .btn-bad {
+  padding: .3rem .8rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: white;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all .15s;
+  line-height: 1;
+}
+.btn-good:hover { background: #dcfce7; border-color: var(--good); }
+.btn-bad:hover  { background: #fee2e2; border-color: var(--bad); }
+.btn-good:disabled, .btn-bad:disabled { opacity: .4; cursor: not-allowed; }
+
+/* ── Utilities ── */
+.hidden { display: none !important; }
+
+#no-results {
+  text-align: center;
+  color: var(--muted);
+  padding: 4rem 1rem;
+  font-size: 1rem;
+  grid-column: 1 / -1;
+}
+
+/* ── Toast ── */
+.toast {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(1.5rem);
+  background: #1e293b;
+  color: white;
+  padding: .7rem 1.5rem;
+  border-radius: 8px;
+  opacity: 0;
+  transition: opacity .25s, transform .25s;
+  z-index: 9999;
+  font-size: .875rem;
+  pointer-events: none;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  header { padding: 1.5rem 1rem; }
+  header h1 { font-size: 1.4rem; }
+  .filter-nav { padding: .75rem 1rem; }
+  main { padding: 1rem; }
+  .video-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+  <header>
+    <h1><a href="../index.html" style="color:inherit;text-decoration:none">AI 영상 큐레이션</a></h1>
+    <p class="subtitle">기획자를 위한 AI 관련 유튜브 영상 추천</p>
+    <p class="updated">마지막 업데이트: 2026-06-01 07:51 KST | 41개</p>
+  </header>
+  <nav class="filter-nav">
+    <div class="search-box">
+      <input type="text" id="search-input" placeholder="영상 검색..." oninput="handleSearch(this.value)">
+    </div>
+    <div class="tab-buttons">
+      <button class="tab-btn active" data-cat="all" onclick="filterByCategory(this,'all')">전체</button>
+      <button class="tab-btn" data-cat="AI 툴 활용" onclick="filterByCategory(this,'AI 툴 활용')">AI 툴 활용</button>
+      <button class="tab-btn" data-cat="AI 트렌드" onclick="filterByCategory(this,'AI 트렌드')">AI 트렌드</button>
+      <button class="tab-btn" data-cat="업무 자동화" onclick="filterByCategory(this,'업무 자동화')">업무 자동화</button>
+      <button class="tab-btn" data-cat="프롬프트 엔지니어링" onclick="filterByCategory(this,'프롬프트 엔지니어링')">프롬프트 엔지니어링</button>
+      <button class="tab-btn" data-cat="기획 인사이트" onclick="filterByCategory(this,'기획 인사이트')">기획 인사이트</button>
+    </div>
+  </nav>
+  <main>
+    <div class="video-grid" id="video-grid">
+    <div class="video-card" data-category="프롬프트 엔지니어링" data-id="hAoanjaT7vc">
+      <a href="https://youtube.com/watch?v=hAoanjaT7vc" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/hAoanjaT7vc/mqdefault.jpg" alt="Stop Guessing What to Build: AI-Powered Product Roadmaps" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">프롬프트 엔지니어링</span>
+        <h3><a href="https://youtube.com/watch?v=hAoanjaT7vc" target="_blank" rel="noopener">Stop Guessing What to Build: AI-Powered Product Roadmaps</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">AI Unfiltered with Thorsten Meyer</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('hAoanjaT7vc','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('hAoanjaT7vc','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="프롬프트 엔지니어링" data-id="1ULdp9TMfVg">
+      <a href="https://youtube.com/watch?v=1ULdp9TMfVg" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/1ULdp9TMfVg/mqdefault.jpg" alt="🚀 AI-Powered Content Automation Workflow using n8n | Multi-Agent AI System Explained" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">프롬프트 엔지니어링</span>
+        <h3><a href="https://youtube.com/watch?v=1ULdp9TMfVg" target="_blank" rel="noopener">🚀 AI-Powered Content Automation Workflow using n8n | Multi-Agent AI System Explained</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">Innoventsoft Official</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('1ULdp9TMfVg','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('1ULdp9TMfVg','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="프롬프트 엔지니어링" data-id="7WX0kazepWg">
+      <a href="https://youtube.com/watch?v=7WX0kazepWg" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/7WX0kazepWg/mqdefault.jpg" alt="지방 소멸? 문제는 인구가 아니라 ‘연결’입니다" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">프롬프트 엔지니어링</span>
+        <h3><a href="https://youtube.com/watch?v=7WX0kazepWg" target="_blank" rel="noopener">지방 소멸? 문제는 인구가 아니라 ‘연결’입니다</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">이영훈닷컴</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('7WX0kazepWg','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('7WX0kazepWg','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="프롬프트 엔지니어링" data-id="ReTx6ku4_dc">
+      <a href="https://youtube.com/watch?v=ReTx6ku4_dc" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/ReTx6ku4_dc/mqdefault.jpg" alt="Opus 4.8 + Claude Code&amp;#39;s NEW Dynamic Workflows is INSANE (Full Walkthrough)" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">프롬프트 엔지니어링</span>
+        <h3><a href="https://youtube.com/watch?v=ReTx6ku4_dc" target="_blank" rel="noopener">Opus 4.8 + Claude Code&amp;#39;s NEW Dynamic Workflows is INSANE (Full Walkthrough)</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">Eddie Chen | AI Automation</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('ReTx6ku4_dc','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('ReTx6ku4_dc','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="프롬프트 엔지니어링" data-id="ft2SAOo80Oc">
+      <a href="https://youtube.com/watch?v=ft2SAOo80Oc" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/ft2SAOo80Oc/mqdefault.jpg" alt="이거 꼭 써보셔야 합니다! 요즘 난리난 코덱스로 코딩 없이 내 업무 자동화 만들기" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">프롬프트 엔지니어링</span>
+        <h3><a href="https://youtube.com/watch?v=ft2SAOo80Oc" target="_blank" rel="noopener">이거 꼭 써보셔야 합니다! 요즘 난리난 코덱스로 코딩 없이 내 업무 자동화 만들기</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">방구석 리뷰룸</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('ft2SAOo80Oc','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('ft2SAOo80Oc','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="프롬프트 엔지니어링" data-id="fzGgIp6RdhM">
+      <a href="https://youtube.com/watch?v=fzGgIp6RdhM" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/fzGgIp6RdhM/mqdefault.jpg" alt="Dify vs n8n Which AI Workflow Tool Wins" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">프롬프트 엔지니어링</span>
+        <h3><a href="https://youtube.com/watch?v=fzGgIp6RdhM" target="_blank" rel="noopener">Dify vs n8n Which AI Workflow Tool Wins</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">TWiz</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('fzGgIp6RdhM','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('fzGgIp6RdhM','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="프롬프트 엔지니어링" data-id="sZ0knTO507g">
+      <a href="https://youtube.com/watch?v=sZ0knTO507g" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/sZ0knTO507g/mqdefault.jpg" alt="AI를 꾸준히 쓰는 사람들은 무엇이 다를까?" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">프롬프트 엔지니어링</span>
+        <h3><a href="https://youtube.com/watch?v=sZ0knTO507g" target="_blank" rel="noopener">AI를 꾸준히 쓰는 사람들은 무엇이 다를까?</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">Json choi</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('sZ0knTO507g','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('sZ0knTO507g','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="프롬프트 엔지니어링" data-id="0zcN9JU_YNM">
+      <a href="https://youtube.com/watch?v=0zcN9JU_YNM" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/0zcN9JU_YNM/mqdefault.jpg" alt="Best Product Management Templates Every PM Needs (2026)" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">프롬프트 엔지니어링</span>
+        <h3><a href="https://youtube.com/watch?v=0zcN9JU_YNM" target="_blank" rel="noopener">Best Product Management Templates Every PM Needs (2026)</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">Flow with ClickUp</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('0zcN9JU_YNM','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('0zcN9JU_YNM','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="프롬프트 엔지니어링" data-id="7UcGNBL3BHo">
+      <a href="https://youtube.com/watch?v=7UcGNBL3BHo" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/7UcGNBL3BHo/mqdefault.jpg" alt="The PM Identity crisis nobody talks about #aipm #tech #ai #mentor #productmanagement" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">프롬프트 엔지니어링</span>
+        <h3><a href="https://youtube.com/watch?v=7UcGNBL3BHo" target="_blank" rel="noopener">The PM Identity crisis nobody talks about #aipm #tech #ai #mentor #productmanagement</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">Product Management with Mani</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('7UcGNBL3BHo','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('7UcGNBL3BHo','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="프롬프트 엔지니어링" data-id="VFm6sYo4--4">
+      <a href="https://youtube.com/watch?v=VFm6sYo4--4" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/VFm6sYo4--4/mqdefault.jpg" alt="Claude AI Tutorial for Non-Programmers — Claude API Key, MCP, Agile, Everything Explained!" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">프롬프트 엔지니어링</span>
+        <h3><a href="https://youtube.com/watch?v=VFm6sYo4--4" target="_blank" rel="noopener">Claude AI Tutorial for Non-Programmers — Claude API Key, MCP, Agile, Everything Explained!</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">YouTube Growth, AI Systems &amp; Motivation</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('VFm6sYo4--4','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('VFm6sYo4--4','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="프롬프트 엔지니어링" data-id="r03SsmX2kQE">
+      <a href="https://youtube.com/watch?v=r03SsmX2kQE" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/r03SsmX2kQE/mqdefault.jpg" alt="AI Is Making Engineers Worse at Their Own Jobs" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">프롬프트 엔지니어링</span>
+        <h3><a href="https://youtube.com/watch?v=r03SsmX2kQE" target="_blank" rel="noopener">AI Is Making Engineers Worse at Their Own Jobs</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">The MarktPod Clips</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('r03SsmX2kQE','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('r03SsmX2kQE','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="프롬프트 엔지니어링" data-id="pCwsFKwbd8U">
+      <a href="https://youtube.com/watch?v=pCwsFKwbd8U" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/pCwsFKwbd8U/mqdefault.jpg" alt="AI 에이전트와 ChatGPT의 진짜 차이｜이제는 ‘답변하는 AI’가 아니라 ‘실행하는 AI’입니다" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">프롬프트 엔지니어링</span>
+        <h3><a href="https://youtube.com/watch?v=pCwsFKwbd8U" target="_blank" rel="noopener">AI 에이전트와 ChatGPT의 진짜 차이｜이제는 ‘답변하는 AI’가 아니라 ‘실행하는 AI’입니다</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">뎁프로 DevPro</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('pCwsFKwbd8U','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('pCwsFKwbd8U','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="프롬프트 엔지니어링" data-id="zL6K6JGCWBo">
+      <a href="https://youtube.com/watch?v=zL6K6JGCWBo" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/zL6K6JGCWBo/mqdefault.jpg" alt="How to Use GPT Image 2 for AI Content Creation Workflow" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">프롬프트 엔지니어링</span>
+        <h3><a href="https://youtube.com/watch?v=zL6K6JGCWBo" target="_blank" rel="noopener">How to Use GPT Image 2 for AI Content Creation Workflow</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">AI Master</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('zL6K6JGCWBo','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('zL6K6JGCWBo','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="프롬프트 엔지니어링" data-id="I-M7l0yYOwE">
+      <a href="https://youtube.com/watch?v=I-M7l0yYOwE" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/I-M7l0yYOwE/mqdefault.jpg" alt="AI Did Not Make You Useless" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">프롬프트 엔지니어링</span>
+        <h3><a href="https://youtube.com/watch?v=I-M7l0yYOwE" target="_blank" rel="noopener">AI Did Not Make You Useless</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">We&#x27;re All Product Managers Now</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('I-M7l0yYOwE','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('I-M7l0yYOwE','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="프롬프트 엔지니어링" data-id="a9S9y0fy9FE">
+      <a href="https://youtube.com/watch?v=a9S9y0fy9FE" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/a9S9y0fy9FE/mqdefault.jpg" alt="The First Truly Proactive AI Agent Is Here | Air Jelly" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">프롬프트 엔지니어링</span>
+        <h3><a href="https://youtube.com/watch?v=a9S9y0fy9FE" target="_blank" rel="noopener">The First Truly Proactive AI Agent Is Here | Air Jelly</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">Kingy AI</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('a9S9y0fy9FE','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('a9S9y0fy9FE','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="프롬프트 엔지니어링" data-id="EGW-sNXWOR8">
+      <a href="https://youtube.com/watch?v=EGW-sNXWOR8" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/EGW-sNXWOR8/mqdefault.jpg" alt="Introducing Sigma Assistant | Product Launch 2026" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">프롬프트 엔지니어링</span>
+        <h3><a href="https://youtube.com/watch?v=EGW-sNXWOR8" target="_blank" rel="noopener">Introducing Sigma Assistant | Product Launch 2026</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">Sigma</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('EGW-sNXWOR8','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('EGW-sNXWOR8','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="프롬프트 엔지니어링" data-id="iIfOprq2kCM">
+      <a href="https://youtube.com/watch?v=iIfOprq2kCM" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/iIfOprq2kCM/mqdefault.jpg" alt="How To Win With AI (without starting an agency)" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">프롬프트 엔지니어링</span>
+        <h3><a href="https://youtube.com/watch?v=iIfOprq2kCM" target="_blank" rel="noopener">How To Win With AI (without starting an agency)</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">Nate Herk | AI Automation</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('iIfOprq2kCM','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('iIfOprq2kCM','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="프롬프트 엔지니어링" data-id="CqqQgicxXfk">
+      <a href="https://youtube.com/watch?v=CqqQgicxXfk" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/CqqQgicxXfk/mqdefault.jpg" alt="Claude Can Finally Run an AI Video Studio" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">프롬프트 엔지니어링</span>
+        <h3><a href="https://youtube.com/watch?v=CqqQgicxXfk" target="_blank" rel="noopener">Claude Can Finally Run an AI Video Studio</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">Malva AI</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('CqqQgicxXfk','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('CqqQgicxXfk','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="프롬프트 엔지니어링" data-id="PQUkE5TatLQ">
+      <a href="https://youtube.com/watch?v=PQUkE5TatLQ" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/PQUkE5TatLQ/mqdefault.jpg" alt="Unlock The Probabilistic Shift: Master AI Stakeholder Management!" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">프롬프트 엔지니어링</span>
+        <h3><a href="https://youtube.com/watch?v=PQUkE5TatLQ" target="_blank" rel="noopener">Unlock The Probabilistic Shift: Master AI Stakeholder Management!</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">AI Product Management</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('PQUkE5TatLQ','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('PQUkE5TatLQ','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="프롬프트 엔지니어링" data-id="0uuvmRCQyp0">
+      <a href="https://youtube.com/watch?v=0uuvmRCQyp0" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/0uuvmRCQyp0/mqdefault.jpg" alt="AI 혼자 일시키면 실패합니다 | AI 팀 협업으로 업무 자동화하는 법" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">프롬프트 엔지니어링</span>
+        <h3><a href="https://youtube.com/watch?v=0uuvmRCQyp0" target="_blank" rel="noopener">AI 혼자 일시키면 실패합니다 | AI 팀 협업으로 업무 자동화하는 법</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">My Toolly</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('0uuvmRCQyp0','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('0uuvmRCQyp0','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="프롬프트 엔지니어링" data-id="dmvTaHn2-3Y">
+      <a href="https://youtube.com/watch?v=dmvTaHn2-3Y" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/dmvTaHn2-3Y/mqdefault.jpg" alt="I Stopped Selling $297/mo AI Automations and Did This Instead" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">프롬프트 엔지니어링</span>
+        <h3><a href="https://youtube.com/watch?v=dmvTaHn2-3Y" target="_blank" rel="noopener">I Stopped Selling $297/mo AI Automations and Did This Instead</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">Sean Standberry</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('dmvTaHn2-3Y','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('dmvTaHn2-3Y','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="프롬프트 엔지니어링" data-id="_O_Os_qF45o">
+      <a href="https://youtube.com/watch?v=_O_Os_qF45o" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/_O_Os_qF45o/mqdefault.jpg" alt="Generate Long AI Videos Free — No Watermark | Unlimited | Full Workflow" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">프롬프트 엔지니어링</span>
+        <h3><a href="https://youtube.com/watch?v=_O_Os_qF45o" target="_blank" rel="noopener">Generate Long AI Videos Free — No Watermark | Unlimited | Full Workflow</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">The Build AI</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('_O_Os_qF45o','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('_O_Os_qF45o','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="프롬프트 엔지니어링" data-id="8QTPWt4XEWY">
+      <a href="https://youtube.com/watch?v=8QTPWt4XEWY" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/8QTPWt4XEWY/mqdefault.jpg" alt="FULLY FREE AI Agents: This is ACTUALLY CRAZY &amp;amp; EASY!" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">프롬프트 엔지니어링</span>
+        <h3><a href="https://youtube.com/watch?v=8QTPWt4XEWY" target="_blank" rel="noopener">FULLY FREE AI Agents: This is ACTUALLY CRAZY &amp;amp; EASY!</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">AICodeKing</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('8QTPWt4XEWY','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('8QTPWt4XEWY','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="프롬프트 엔지니어링" data-id="LEO2doOUrj8">
+      <a href="https://youtube.com/watch?v=LEO2doOUrj8" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/LEO2doOUrj8/mqdefault.jpg" alt="AI is making us all product managers (like it or not)" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">프롬프트 엔지니어링</span>
+        <h3><a href="https://youtube.com/watch?v=LEO2doOUrj8" target="_blank" rel="noopener">AI is making us all product managers (like it or not)</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">We&#x27;re All Product Managers Now</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('LEO2doOUrj8','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('LEO2doOUrj8','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="프롬프트 엔지니어링" data-id="-2UjhsSwHvE">
+      <a href="https://youtube.com/watch?v=-2UjhsSwHvE" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/-2UjhsSwHvE/mqdefault.jpg" alt="GHL&amp;#39;s AI Workflow Builder Makes Automation Actually Accessible" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">프롬프트 엔지니어링</span>
+        <h3><a href="https://youtube.com/watch?v=-2UjhsSwHvE" target="_blank" rel="noopener">GHL&amp;#39;s AI Workflow Builder Makes Automation Actually Accessible</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">Blue Cow Marketing | Automating Your Growth</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('-2UjhsSwHvE','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('-2UjhsSwHvE','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="프롬프트 엔지니어링" data-id="JKoqU244e5Q">
+      <a href="https://youtube.com/watch?v=JKoqU244e5Q" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/JKoqU244e5Q/mqdefault.jpg" alt="The New Agentic AI Workflow Feels Too Powerful" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">프롬프트 엔지니어링</span>
+        <h3><a href="https://youtube.com/watch?v=JKoqU244e5Q" target="_blank" rel="noopener">The New Agentic AI Workflow Feels Too Powerful</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">AI Revolution</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('JKoqU244e5Q','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('JKoqU244e5Q','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="프롬프트 엔지니어링" data-id="a8_h7C10a1U">
+      <a href="https://youtube.com/watch?v=a8_h7C10a1U" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/a8_h7C10a1U/mqdefault.jpg" alt="These 5 AI Courses Will Future-Proof Your PM Career" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">프롬프트 엔지니어링</span>
+        <h3><a href="https://youtube.com/watch?v=a8_h7C10a1U" target="_blank" rel="noopener">These 5 AI Courses Will Future-Proof Your PM Career</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">Flow with ClickUp</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('a8_h7C10a1U','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('a8_h7C10a1U','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="프롬프트 엔지니어링" data-id="0xu3MYYg0ek">
+      <a href="https://youtube.com/watch?v=0xu3MYYg0ek" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/0xu3MYYg0ek/mqdefault.jpg" alt="NotebookLM Just Got Automations: Build POWERFUL AI Automations!" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">프롬프트 엔지니어링</span>
+        <h3><a href="https://youtube.com/watch?v=0xu3MYYg0ek" target="_blank" rel="noopener">NotebookLM Just Got Automations: Build POWERFUL AI Automations!</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">Universe of AI</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('0xu3MYYg0ek','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('0xu3MYYg0ek','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="프롬프트 엔지니어링" data-id="HOaEa1pc8Hc">
+      <a href="https://youtube.com/watch?v=HOaEa1pc8Hc" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/HOaEa1pc8Hc/mqdefault.jpg" alt="AI for Product Managers - Training with Valerio Zanini" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">프롬프트 엔지니어링</span>
+        <h3><a href="https://youtube.com/watch?v=HOaEa1pc8Hc" target="_blank" rel="noopener">AI for Product Managers - Training with Valerio Zanini</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">Product Bytes</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('HOaEa1pc8Hc','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('HOaEa1pc8Hc','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="프롬프트 엔지니어링" data-id="Vm6eBtYJ2CE">
+      <a href="https://youtube.com/watch?v=Vm6eBtYJ2CE" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/Vm6eBtYJ2CE/mqdefault.jpg" alt="Advanced Demand Intelligence in Supply Chains | AI Forecasting, Real-Time Data &amp;amp; Smart Plan | Uplatz" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">프롬프트 엔지니어링</span>
+        <h3><a href="https://youtube.com/watch?v=Vm6eBtYJ2CE" target="_blank" rel="noopener">Advanced Demand Intelligence in Supply Chains | AI Forecasting, Real-Time Data &amp;amp; Smart Plan | Uplatz</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">Uplatz</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('Vm6eBtYJ2CE','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('Vm6eBtYJ2CE','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="프롬프트 엔지니어링" data-id="uMMMwXjR8VY">
+      <a href="https://youtube.com/watch?v=uMMMwXjR8VY" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/uMMMwXjR8VY/mqdefault.jpg" alt="Pinpoint April Product Spotlight: AI Hiring Copilot and Pinpoint&amp;#39;s MCP Server—AI In Your ATS" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">프롬프트 엔지니어링</span>
+        <h3><a href="https://youtube.com/watch?v=uMMMwXjR8VY" target="_blank" rel="noopener">Pinpoint April Product Spotlight: AI Hiring Copilot and Pinpoint&amp;#39;s MCP Server—AI In Your ATS</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">Pinpoint</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('uMMMwXjR8VY','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('uMMMwXjR8VY','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="프롬프트 엔지니어링" data-id="-GxVR8s_nZY">
+      <a href="https://youtube.com/watch?v=-GxVR8s_nZY" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/-GxVR8s_nZY/mqdefault.jpg" alt="Nobody Is Ready for This Next-Gen AI Workflow - 3D Characters &amp;amp; Assets" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">프롬프트 엔지니어링</span>
+        <h3><a href="https://youtube.com/watch?v=-GxVR8s_nZY" target="_blank" rel="noopener">Nobody Is Ready for This Next-Gen AI Workflow - 3D Characters &amp;amp; Assets</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">Stefan 3D AI Lab</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('-GxVR8s_nZY','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('-GxVR8s_nZY','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="프롬프트 엔지니어링" data-id="85XAPunoYQI">
+      <a href="https://youtube.com/watch?v=85XAPunoYQI" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/85XAPunoYQI/mqdefault.jpg" alt="Why Most AI Agencies Will Make $0 in 2026 (And What To Do Instead)" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">프롬프트 엔지니어링</span>
+        <h3><a href="https://youtube.com/watch?v=85XAPunoYQI" target="_blank" rel="noopener">Why Most AI Agencies Will Make $0 in 2026 (And What To Do Instead)</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">Michele Torti</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('85XAPunoYQI','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('85XAPunoYQI','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="프롬프트 엔지니어링" data-id="A1IuJ2K2bNM">
+      <a href="https://youtube.com/watch?v=A1IuJ2K2bNM" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/A1IuJ2K2bNM/mqdefault.jpg" alt="GoHighLevel AI Agents: Auto Reply to Comments &amp;amp; DMs" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">프롬프트 엔지니어링</span>
+        <h3><a href="https://youtube.com/watch?v=A1IuJ2K2bNM" target="_blank" rel="noopener">GoHighLevel AI Agents: Auto Reply to Comments &amp;amp; DMs</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">Watermark Design</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('A1IuJ2K2bNM','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('A1IuJ2K2bNM','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="프롬프트 엔지니어링" data-id="kH6HfbuvV9g">
+      <a href="https://youtube.com/watch?v=kH6HfbuvV9g" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/kH6HfbuvV9g/mqdefault.jpg" alt="AI, 아직도 필요할 때만 쓰시나요? 업무 효율이 바뀌는 5분 루틴의 마법 [5편]" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">프롬프트 엔지니어링</span>
+        <h3><a href="https://youtube.com/watch?v=kH6HfbuvV9g" target="_blank" rel="noopener">AI, 아직도 필요할 때만 쓰시나요? 업무 효율이 바뀌는 5분 루틴의 마법 [5편]</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">테크소피(TechSophy)</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('kH6HfbuvV9g','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('kH6HfbuvV9g','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="프롬프트 엔지니어링" data-id="En0hlePMuik">
+      <a href="https://youtube.com/watch?v=En0hlePMuik" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/En0hlePMuik/mqdefault.jpg" alt="99%가 모르고 있는 Chat GPT 프로젝트 활용방법" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">프롬프트 엔지니어링</span>
+        <h3><a href="https://youtube.com/watch?v=En0hlePMuik" target="_blank" rel="noopener">99%가 모르고 있는 Chat GPT 프로젝트 활용방법</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">개구리마케팅왕자</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('En0hlePMuik','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('En0hlePMuik','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="프롬프트 엔지니어링" data-id="3oh8yUDkKMk">
+      <a href="https://youtube.com/watch?v=3oh8yUDkKMk" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/3oh8yUDkKMk/mqdefault.jpg" alt="How ArkClaw AI Automated My Entire Business Workflow" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">프롬프트 엔지니어링</span>
+        <h3><a href="https://youtube.com/watch?v=3oh8yUDkKMk" target="_blank" rel="noopener">How ArkClaw AI Automated My Entire Business Workflow</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">NyesWorldTV</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('3oh8yUDkKMk','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('3oh8yUDkKMk','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="프롬프트 엔지니어링" data-id="xr5p2p9L7Ig">
+      <a href="https://youtube.com/watch?v=xr5p2p9L7Ig" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/xr5p2p9L7Ig/mqdefault.jpg" alt="이제 &amp;quot;내 업무 아닌데요?&amp;quot; 이거 안 통합니다." loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">프롬프트 엔지니어링</span>
+        <h3><a href="https://youtube.com/watch?v=xr5p2p9L7Ig" target="_blank" rel="noopener">이제 &amp;quot;내 업무 아닌데요?&amp;quot; 이거 안 통합니다.</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">실무자</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('xr5p2p9L7Ig','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('xr5p2p9L7Ig','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="프롬프트 엔지니어링" data-id="Frrf-26UkNU">
+      <a href="https://youtube.com/watch?v=Frrf-26UkNU" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/Frrf-26UkNU/mqdefault.jpg" alt="클로드 스킬로 PPT 끝장내기 | 너무 쉬운 AI로 발표자료 만드는 방법" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">프롬프트 엔지니어링</span>
+        <h3><a href="https://youtube.com/watch?v=Frrf-26UkNU" target="_blank" rel="noopener">클로드 스킬로 PPT 끝장내기 | 너무 쉬운 AI로 발표자료 만드는 방법</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">소소한 AI 입문노트 | 소에노</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('Frrf-26UkNU','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('Frrf-26UkNU','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="프롬프트 엔지니어링" data-id="9v2OjxDj18w">
+      <a href="https://youtube.com/watch?v=9v2OjxDj18w" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/9v2OjxDj18w/mqdefault.jpg" alt="Dr. Oz: Feds using AI tools to identify medical fraud | NewsNation Prime" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">프롬프트 엔지니어링</span>
+        <h3><a href="https://youtube.com/watch?v=9v2OjxDj18w" target="_blank" rel="noopener">Dr. Oz: Feds using AI tools to identify medical fraud | NewsNation Prime</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">NewsNation</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('9v2OjxDj18w','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('9v2OjxDj18w','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="프롬프트 엔지니어링" data-id="lLiMDwWowL4">
+      <a href="https://youtube.com/watch?v=lLiMDwWowL4" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/lLiMDwWowL4/mqdefault.jpg" alt="11 Best Platforms for Business Owners to Automate" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">프롬프트 엔지니어링</span>
+        <h3><a href="https://youtube.com/watch?v=lLiMDwWowL4" target="_blank" rel="noopener">11 Best Platforms for Business Owners to Automate</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">Jon Law </span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('lLiMDwWowL4','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('lLiMDwWowL4','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    </div>
+    <div id="no-results" class="hidden">검색 결과가 없습니다.</div>
+  </main>
+  <script>
+    const SEARCH_INDEX = [{"id": "hAoanjaT7vc", "title": "Stop Guessing What to Build: AI-Powered Product Roadmaps", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "프롬프트 엔지니어링", "channel": "AI Unfiltered with Thorsten Meyer"}, {"id": "1ULdp9TMfVg", "title": "🚀 AI-Powered Content Automation Workflow using n8n | Multi-Agent AI System Explained", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "프롬프트 엔지니어링", "channel": "Innoventsoft Official"}, {"id": "7WX0kazepWg", "title": "지방 소멸? 문제는 인구가 아니라 ‘연결’입니다", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "프롬프트 엔지니어링", "channel": "이영훈닷컴"}, {"id": "ReTx6ku4_dc", "title": "Opus 4.8 + Claude Code&#39;s NEW Dynamic Workflows is INSANE (Full Walkthrough)", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "프롬프트 엔지니어링", "channel": "Eddie Chen | AI Automation"}, {"id": "ft2SAOo80Oc", "title": "이거 꼭 써보셔야 합니다! 요즘 난리난 코덱스로 코딩 없이 내 업무 자동화 만들기", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "프롬프트 엔지니어링", "channel": "방구석 리뷰룸"}, {"id": "fzGgIp6RdhM", "title": "Dify vs n8n Which AI Workflow Tool Wins", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "프롬프트 엔지니어링", "channel": "TWiz"}, {"id": "sZ0knTO507g", "title": "AI를 꾸준히 쓰는 사람들은 무엇이 다를까?", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "프롬프트 엔지니어링", "channel": "Json choi"}, {"id": "0zcN9JU_YNM", "title": "Best Product Management Templates Every PM Needs (2026)", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "프롬프트 엔지니어링", "channel": "Flow with ClickUp"}, {"id": "7UcGNBL3BHo", "title": "The PM Identity crisis nobody talks about #aipm #tech #ai #mentor #productmanagement", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "프롬프트 엔지니어링", "channel": "Product Management with Mani"}, {"id": "VFm6sYo4--4", "title": "Claude AI Tutorial for Non-Programmers — Claude API Key, MCP, Agile, Everything Explained!", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "프롬프트 엔지니어링", "channel": "YouTube Growth, AI Systems & Motivation"}, {"id": "r03SsmX2kQE", "title": "AI Is Making Engineers Worse at Their Own Jobs", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "프롬프트 엔지니어링", "channel": "The MarktPod Clips"}, {"id": "pCwsFKwbd8U", "title": "AI 에이전트와 ChatGPT의 진짜 차이｜이제는 ‘답변하는 AI’가 아니라 ‘실행하는 AI’입니다", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "프롬프트 엔지니어링", "channel": "뎁프로 DevPro"}, {"id": "zL6K6JGCWBo", "title": "How to Use GPT Image 2 for AI Content Creation Workflow", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "프롬프트 엔지니어링", "channel": "AI Master"}, {"id": "I-M7l0yYOwE", "title": "AI Did Not Make You Useless", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "프롬프트 엔지니어링", "channel": "We're All Product Managers Now"}, {"id": "a9S9y0fy9FE", "title": "The First Truly Proactive AI Agent Is Here | Air Jelly", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "프롬프트 엔지니어링", "channel": "Kingy AI"}, {"id": "EGW-sNXWOR8", "title": "Introducing Sigma Assistant | Product Launch 2026", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "프롬프트 엔지니어링", "channel": "Sigma"}, {"id": "iIfOprq2kCM", "title": "How To Win With AI (without starting an agency)", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "프롬프트 엔지니어링", "channel": "Nate Herk | AI Automation"}, {"id": "CqqQgicxXfk", "title": "Claude Can Finally Run an AI Video Studio", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "프롬프트 엔지니어링", "channel": "Malva AI"}, {"id": "PQUkE5TatLQ", "title": "Unlock The Probabilistic Shift: Master AI Stakeholder Management!", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "프롬프트 엔지니어링", "channel": "AI Product Management"}, {"id": "0uuvmRCQyp0", "title": "AI 혼자 일시키면 실패합니다 | AI 팀 협업으로 업무 자동화하는 법", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "프롬프트 엔지니어링", "channel": "My Toolly"}, {"id": "dmvTaHn2-3Y", "title": "I Stopped Selling $297/mo AI Automations and Did This Instead", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "프롬프트 엔지니어링", "channel": "Sean Standberry"}, {"id": "_O_Os_qF45o", "title": "Generate Long AI Videos Free — No Watermark | Unlimited | Full Workflow", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "프롬프트 엔지니어링", "channel": "The Build AI"}, {"id": "8QTPWt4XEWY", "title": "FULLY FREE AI Agents: This is ACTUALLY CRAZY &amp; EASY!", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "프롬프트 엔지니어링", "channel": "AICodeKing"}, {"id": "LEO2doOUrj8", "title": "AI is making us all product managers (like it or not)", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "프롬프트 엔지니어링", "channel": "We're All Product Managers Now"}, {"id": "-2UjhsSwHvE", "title": "GHL&#39;s AI Workflow Builder Makes Automation Actually Accessible", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "프롬프트 엔지니어링", "channel": "Blue Cow Marketing | Automating Your Growth"}, {"id": "JKoqU244e5Q", "title": "The New Agentic AI Workflow Feels Too Powerful", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "프롬프트 엔지니어링", "channel": "AI Revolution"}, {"id": "a8_h7C10a1U", "title": "These 5 AI Courses Will Future-Proof Your PM Career", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "프롬프트 엔지니어링", "channel": "Flow with ClickUp"}, {"id": "0xu3MYYg0ek", "title": "NotebookLM Just Got Automations: Build POWERFUL AI Automations!", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "프롬프트 엔지니어링", "channel": "Universe of AI"}, {"id": "HOaEa1pc8Hc", "title": "AI for Product Managers - Training with Valerio Zanini", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "프롬프트 엔지니어링", "channel": "Product Bytes"}, {"id": "Vm6eBtYJ2CE", "title": "Advanced Demand Intelligence in Supply Chains | AI Forecasting, Real-Time Data &amp; Smart Plan | Uplatz", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "프롬프트 엔지니어링", "channel": "Uplatz"}, {"id": "uMMMwXjR8VY", "title": "Pinpoint April Product Spotlight: AI Hiring Copilot and Pinpoint&#39;s MCP Server—AI In Your ATS", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "프롬프트 엔지니어링", "channel": "Pinpoint"}, {"id": "-GxVR8s_nZY", "title": "Nobody Is Ready for This Next-Gen AI Workflow - 3D Characters &amp; Assets", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "프롬프트 엔지니어링", "channel": "Stefan 3D AI Lab"}, {"id": "85XAPunoYQI", "title": "Why Most AI Agencies Will Make $0 in 2026 (And What To Do Instead)", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "프롬프트 엔지니어링", "channel": "Michele Torti"}, {"id": "A1IuJ2K2bNM", "title": "GoHighLevel AI Agents: Auto Reply to Comments &amp; DMs", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "프롬프트 엔지니어링", "channel": "Watermark Design"}, {"id": "kH6HfbuvV9g", "title": "AI, 아직도 필요할 때만 쓰시나요? 업무 효율이 바뀌는 5분 루틴의 마법 [5편]", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "프롬프트 엔지니어링", "channel": "테크소피(TechSophy)"}, {"id": "En0hlePMuik", "title": "99%가 모르고 있는 Chat GPT 프로젝트 활용방법", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "프롬프트 엔지니어링", "channel": "개구리마케팅왕자"}, {"id": "3oh8yUDkKMk", "title": "How ArkClaw AI Automated My Entire Business Workflow", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "프롬프트 엔지니어링", "channel": "NyesWorldTV"}, {"id": "xr5p2p9L7Ig", "title": "이제 &quot;내 업무 아닌데요?&quot; 이거 안 통합니다.", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "프롬프트 엔지니어링", "channel": "실무자"}, {"id": "Frrf-26UkNU", "title": "클로드 스킬로 PPT 끝장내기 | 너무 쉬운 AI로 발표자료 만드는 방법", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "프롬프트 엔지니어링", "channel": "소소한 AI 입문노트 | 소에노"}, {"id": "9v2OjxDj18w", "title": "Dr. Oz: Feds using AI tools to identify medical fraud | NewsNation Prime", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "프롬프트 엔지니어링", "channel": "NewsNation"}, {"id": "lLiMDwWowL4", "title": "11 Best Platforms for Business Owners to Automate", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "프롬프트 엔지니어링", "channel": "Jon Law "}];
+    const FEEDBACK_ENDPOINT = '';
+  </script>
+  <script>// Category filter & search state
+let activeCategory = 'all';
+let searchQuery = '';
+
+function filterByCategory(btn, category) {
+  activeCategory = category;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  applyFilters();
+}
+
+function handleSearch(query) {
+  searchQuery = query.toLowerCase().trim();
+  applyFilters();
+}
+
+function applyFilters() {
+  const cards = document.querySelectorAll('.video-card');
+  let visible = 0;
+
+  cards.forEach(card => {
+    const catMatch = activeCategory === 'all' || card.dataset.category === activeCategory;
+
+    let searchMatch = true;
+    if (searchQuery) {
+      const item = SEARCH_INDEX.find(s => s.id === card.dataset.id);
+      if (item) {
+        const haystack = `${item.title} ${item.summary} ${item.channel} ${item.category}`.toLowerCase();
+        searchMatch = haystack.includes(searchQuery);
+      } else {
+        searchMatch = false;
+      }
+    }
+
+    const show = catMatch && searchMatch;
+    card.style.display = show ? '' : 'none';
+    if (show) visible++;
+  });
+
+  const noResults = document.getElementById('no-results');
+  if (noResults) noResults.classList.toggle('hidden', visible > 0);
+}
+
+async function sendFeedback(videoId, rating) {
+  const card = document.querySelector(`[data-id="${videoId}"]`);
+  if (!card) return;
+
+  const btn = card.querySelector(`.btn-${rating.toLowerCase()}`);
+  if (btn) { btn.disabled = true; }
+
+  const payload = {
+    video_id: videoId,
+    rating: rating,
+    timestamp: new Date().toISOString(),
+    processed: false,
+  };
+
+  const endpoint = typeof FEEDBACK_ENDPOINT !== 'undefined' ? FEEDBACK_ENDPOINT : '';
+
+  if (!endpoint) {
+    // Formspree 미설정 시 localStorage에 임시 저장
+    try {
+      const stored = JSON.parse(localStorage.getItem('pending_feedback') || '[]');
+      stored.push(payload);
+      localStorage.setItem('pending_feedback', JSON.stringify(stored));
+    } catch (_) {}
+    showToast(rating === 'GOOD' ? '👍 감사합니다!' : '👎 피드백 감사합니다!');
+    return;
+  }
+
+  try {
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (res.ok) {
+      showToast(rating === 'GOOD' ? '👍 감사합니다!' : '👎 피드백 감사합니다!');
+    } else {
+      throw new Error(`HTTP ${res.status}`);
+    }
+  } catch (e) {
+    console.error('Feedback error:', e);
+    if (btn) btn.disabled = false;
+    showToast('전송 실패, 다시 시도해 주세요.');
+  }
+}
+
+function showToast(msg) {
+  const existing = document.querySelector('.toast');
+  if (existing) existing.remove();
+
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = msg;
+  document.body.appendChild(toast);
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => toast.classList.add('show'));
+  });
+  setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => toast.remove(), 300);
+  }, 2200);
+}
+</script>
+</body>
+</html>
