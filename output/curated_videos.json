@@ -1,5 +1,47 @@
 [
   {
+    "video_id": "pIbs9qqKvg0",
+    "title": "A Product Builder&#39;s Guide to AI: Base Models, RAG, &amp; Prompting",
+    "channel": "KNITT AI",
+    "published_at": "2026-05-28T03:30:33Z",
+    "url": "https://youtube.com/watch?v=pIbs9qqKvg0",
+    "thumbnail": "https://i.ytimg.com/vi/pIbs9qqKvg0/mqdefault.jpg",
+    "category": "AI 툴 활용",
+    "score": 75,
+    "summary": "API 키 연결 후 실제 요약이 생성됩니다.",
+    "verdict": "include",
+    "exclude_reason": null,
+    "scored_at": "2026-06-03T23:26:58.392331+00:00"
+  },
+  {
+    "video_id": "OpwOvyvox3A",
+    "title": "Microsoft Scout AI: My Huge Aha Moment for Workflow Automation",
+    "channel": "WorkModern",
+    "published_at": "2026-06-03T12:42:08Z",
+    "url": "https://youtube.com/watch?v=OpwOvyvox3A",
+    "thumbnail": "https://i.ytimg.com/vi/OpwOvyvox3A/mqdefault.jpg",
+    "category": "AI 트렌드",
+    "score": 75,
+    "summary": "API 키 연결 후 실제 요약이 생성됩니다.",
+    "verdict": "include",
+    "exclude_reason": null,
+    "scored_at": "2026-06-03T23:26:58.392331+00:00"
+  },
+  {
+    "video_id": "H491tDR3lJg",
+    "title": "NEW AI Agent Creates Long AI Videos With One Prompt!",
+    "channel": "Skai Generated",
+    "published_at": "2026-05-28T16:14:53Z",
+    "url": "https://youtube.com/watch?v=H491tDR3lJg",
+    "thumbnail": "https://i.ytimg.com/vi/H491tDR3lJg/mqdefault.jpg",
+    "category": "업무 자동화",
+    "score": 75,
+    "summary": "API 키 연결 후 실제 요약이 생성됩니다.",
+    "verdict": "include",
+    "exclude_reason": null,
+    "scored_at": "2026-06-03T23:26:58.392331+00:00"
+  },
+  {
     "video_id": "D4s1cjsLyhY",
     "title": "Traffic Safety Analysis for City Planners with CARTO AI Agents",
     "channel": "CARTO",
