@@ -1,5 +1,47 @@
 [
   {
+    "video_id": "LK869yuteXU",
+    "title": "(무료공개) AI 시대에 꼭 알아야 하는 노션 데이터베이스 | 2026 노션 사용법 2편 | 노션 기초 | 노션 템플릿",
+    "channel": "시간기획자 마담초이 최민정",
+    "published_at": "2026-06-14T05:31:16Z",
+    "url": "https://youtube.com/watch?v=LK869yuteXU",
+    "thumbnail": "https://i.ytimg.com/vi/LK869yuteXU/mqdefault.jpg",
+    "category": "AI 툴 활용",
+    "score": 75,
+    "summary": "API 키 연결 후 실제 요약이 생성됩니다.",
+    "verdict": "include",
+    "exclude_reason": null,
+    "scored_at": "2026-06-14T22:59:50.713428+00:00"
+  },
+  {
+    "video_id": "HPr1IuR4MqI",
+    "title": "GPT가 만든 보고서 수준이 충격입니다  회사 업무 자동화가 더 빨라질 수 있습니다",
+    "channel": "AI지식정보연구소",
+    "published_at": "2026-06-10T15:30:00Z",
+    "url": "https://youtube.com/watch?v=HPr1IuR4MqI",
+    "thumbnail": "https://i.ytimg.com/vi/HPr1IuR4MqI/mqdefault.jpg",
+    "category": "AI 트렌드",
+    "score": 75,
+    "summary": "API 키 연결 후 실제 요약이 생성됩니다.",
+    "verdict": "include",
+    "exclude_reason": null,
+    "scored_at": "2026-06-14T22:59:50.713428+00:00"
+  },
+  {
+    "video_id": "ankP0LSTCV8",
+    "title": "Automated My Workflow in 9 Minutes (Zero Coding) - Income with AI",
+    "channel": "Bujhle Easy",
+    "published_at": "2026-06-13T09:57:47Z",
+    "url": "https://youtube.com/watch?v=ankP0LSTCV8",
+    "thumbnail": "https://i.ytimg.com/vi/ankP0LSTCV8/mqdefault.jpg",
+    "category": "업무 자동화",
+    "score": 75,
+    "summary": "API 키 연결 후 실제 요약이 생성됩니다.",
+    "verdict": "include",
+    "exclude_reason": null,
+    "scored_at": "2026-06-14T22:59:50.713428+00:00"
+  },
+  {
     "video_id": "08BoTawKu5M",
     "title": "2026년에 콘텐츠를 시작한다면 전 이렇게만 만들게요  | 누적 4억뷰 PD가 알려주는 콘텐츠 시스템 5가지",
     "channel": "윤치상",
