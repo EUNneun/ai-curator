@@ -1,0 +1,1654 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI 영상 큐레이션 — AI 트렌드 | 기획자를 위한 AI 유튜브</title>
+  <style>:root {
+  --primary: #2563eb;
+  --primary-dark: #1d4ed8;
+  --bg: #f8fafc;
+  --card-bg: #ffffff;
+  --text: #1e293b;
+  --muted: #64748b;
+  --border: #e2e8f0;
+  --tag-bg: #dbeafe;
+  --tag-text: #1d4ed8;
+  --good: #22c55e;
+  --bad: #ef4444;
+  --radius: 12px;
+  --shadow: 0 1px 3px rgba(0,0,0,.1), 0 1px 2px rgba(0,0,0,.06);
+  --shadow-hover: 0 4px 12px rgba(0,0,0,.12);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans KR', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* ── Header ── */
+header {
+  background: var(--primary);
+  color: white;
+  padding: 2rem 1.5rem 1.75rem;
+  text-align: center;
+}
+header h1 { font-size: 1.75rem; font-weight: 700; letter-spacing: -0.02em; }
+header .subtitle { opacity: .85; margin-top: .25rem; font-size: .95rem; }
+header .updated { font-size: .78rem; opacity: .65; margin-top: .5rem; }
+
+/* ── Navigation / Filters ── */
+.filter-nav {
+  background: white;
+  border-bottom: 1px solid var(--border);
+  padding: 1rem 1.5rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,.06);
+}
+
+.search-box input {
+  width: 100%;
+  padding: .5rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: .9rem;
+  outline: none;
+  transition: border-color .15s, box-shadow .15s;
+}
+.search-box input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(37,99,235,.12);
+}
+
+.tab-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem;
+}
+.tab-btn {
+  padding: .35rem .85rem;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: white;
+  color: var(--muted);
+  font-size: .83rem;
+  cursor: pointer;
+  transition: all .15s;
+  white-space: nowrap;
+}
+.tab-btn:hover { border-color: var(--primary); color: var(--primary); }
+.tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+/* ── Main grid ── */
+main { max-width: 1200px; margin: 0 auto; padding: 1.5rem; }
+
+.video-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.25rem;
+}
+
+/* ── Video card ── */
+.video-card {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  transition: transform .15s, box-shadow .15s;
+  display: flex;
+  flex-direction: column;
+}
+.video-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+}
+
+.thumbnail {
+  width: 100%;
+  aspect-ratio: 16/9;
+  object-fit: cover;
+  display: block;
+  background: var(--border);
+}
+
+.card-body {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: .5rem;
+}
+
+.category-tag {
+  display: inline-block;
+  background: var(--tag-bg);
+  color: var(--tag-text);
+  font-size: .72rem;
+  font-weight: 600;
+  padding: .2rem .6rem;
+  border-radius: 4px;
+  align-self: flex-start;
+}
+
+.card-body h3 {
+  font-size: .93rem;
+  font-weight: 600;
+  line-height: 1.45;
+}
+.card-body h3 a { color: var(--text); text-decoration: none; }
+.card-body h3 a:hover { color: var(--primary); }
+
+.summary {
+  font-size: .83rem;
+  color: var(--muted);
+  line-height: 1.55;
+  flex: 1;
+}
+
+.card-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: .75rem;
+  color: var(--muted);
+}
+
+.feedback-buttons {
+  display: flex;
+  gap: .5rem;
+  margin-top: .25rem;
+}
+.btn-good, .btn-bad {
+  padding: .3rem .8rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: white;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all .15s;
+  line-height: 1;
+}
+.btn-good:hover { background: #dcfce7; border-color: var(--good); }
+.btn-bad:hover  { background: #fee2e2; border-color: var(--bad); }
+.btn-good:disabled, .btn-bad:disabled { opacity: .4; cursor: not-allowed; }
+
+/* ── Utilities ── */
+.hidden { display: none !important; }
+
+#no-results {
+  text-align: center;
+  color: var(--muted);
+  padding: 4rem 1rem;
+  font-size: 1rem;
+  grid-column: 1 / -1;
+}
+
+/* ── Toast ── */
+.toast {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(1.5rem);
+  background: #1e293b;
+  color: white;
+  padding: .7rem 1.5rem;
+  border-radius: 8px;
+  opacity: 0;
+  transition: opacity .25s, transform .25s;
+  z-index: 9999;
+  font-size: .875rem;
+  pointer-events: none;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  header { padding: 1.5rem 1rem; }
+  header h1 { font-size: 1.4rem; }
+  .filter-nav { padding: .75rem 1rem; }
+  main { padding: 1rem; }
+  .video-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+  <header>
+    <h1><a href="../index.html" style="color:inherit;text-decoration:none">AI 영상 큐레이션</a></h1>
+    <p class="subtitle">기획자를 위한 AI 관련 유튜브 영상 추천</p>
+    <p class="updated">마지막 업데이트: 2026-06-15 07:59 KST | 72개</p>
+  </header>
+  <nav class="filter-nav">
+    <div class="search-box">
+      <input type="text" id="search-input" placeholder="영상 검색..." oninput="handleSearch(this.value)">
+    </div>
+    <div class="tab-buttons">
+      <button class="tab-btn active" data-cat="all" onclick="filterByCategory(this,'all')">전체</button>
+      <button class="tab-btn" data-cat="AI 툴 활용" onclick="filterByCategory(this,'AI 툴 활용')">AI 툴 활용</button>
+      <button class="tab-btn" data-cat="AI 트렌드" onclick="filterByCategory(this,'AI 트렌드')">AI 트렌드</button>
+      <button class="tab-btn" data-cat="업무 자동화" onclick="filterByCategory(this,'업무 자동화')">업무 자동화</button>
+      <button class="tab-btn" data-cat="프롬프트 엔지니어링" onclick="filterByCategory(this,'프롬프트 엔지니어링')">프롬프트 엔지니어링</button>
+      <button class="tab-btn" data-cat="기획 인사이트" onclick="filterByCategory(this,'기획 인사이트')">기획 인사이트</button>
+    </div>
+  </nav>
+  <main>
+    <div class="video-grid" id="video-grid">
+    <div class="video-card" data-category="AI 트렌드" data-id="HPr1IuR4MqI">
+      <a href="https://youtube.com/watch?v=HPr1IuR4MqI" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/HPr1IuR4MqI/mqdefault.jpg" alt="GPT가 만든 보고서 수준이 충격입니다  회사 업무 자동화가 더 빨라질 수 있습니다" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=HPr1IuR4MqI" target="_blank" rel="noopener">GPT가 만든 보고서 수준이 충격입니다  회사 업무 자동화가 더 빨라질 수 있습니다</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">AI지식정보연구소</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('HPr1IuR4MqI','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('HPr1IuR4MqI','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="lKYaaLH1idc">
+      <a href="https://youtube.com/watch?v=lKYaaLH1idc" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/lKYaaLH1idc/mqdefault.jpg" alt="How to become an AI Product Manager in 90 Days (No MBA, No Coding)" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=lKYaaLH1idc" target="_blank" rel="noopener">How to become an AI Product Manager in 90 Days (No MBA, No Coding)</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">Neel Sikdar</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('lKYaaLH1idc','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('lKYaaLH1idc','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="zms-5rvr68c">
+      <a href="https://youtube.com/watch?v=zms-5rvr68c" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/zms-5rvr68c/mqdefault.jpg" alt="[HR AI 활용 실무] ChatGPT로 교육 커리큘럼 쉽게 설계하기!" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=zms-5rvr68c" target="_blank" rel="noopener">[HR AI 활용 실무] ChatGPT로 교육 커리큘럼 쉽게 설계하기!</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">디자인 AI 개발 강의 해커스캠퍼스</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('zms-5rvr68c','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('zms-5rvr68c','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="NPcx5K7J-no">
+      <a href="https://youtube.com/watch?v=NPcx5K7J-no" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/NPcx5K7J-no/mqdefault.jpg" alt="AI는 사람을 대체하는가 확장하는가? | Co-Intelligence [북살롱16]" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=NPcx5K7J-no" target="_blank" rel="noopener">AI는 사람을 대체하는가 확장하는가? | Co-Intelligence [북살롱16]</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">Shift Studio</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('NPcx5K7J-no','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('NPcx5K7J-no','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="Ys-gOAS-Hss">
+      <a href="https://youtube.com/watch?v=Ys-gOAS-Hss" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/Ys-gOAS-Hss/mqdefault.jpg" alt="좋은 인포그래픽은 어떻게 만들어질까? 데이터 스토리텔링의 핵심 원리 | #AI활용강사_김보연 #따능AI활용강사_김보연 #AI영화감독_김보연 #생성형AI출판콘텐츠작가_김보연" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=Ys-gOAS-Hss" target="_blank" rel="noopener">좋은 인포그래픽은 어떻게 만들어질까? 데이터 스토리텔링의 핵심 원리 | #AI활용강사_김보연 #따능AI활용강사_김보연 #AI영화감독_김보연 #생성형AI출판콘텐츠작가_김보연</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">AI아트와 AI활용강사 이음쌤입니다.</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('Ys-gOAS-Hss','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('Ys-gOAS-Hss','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="B7ShZbFUv9k">
+      <a href="https://youtube.com/watch?v=B7ShZbFUv9k" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/B7ShZbFUv9k/mqdefault.jpg" alt="From Idea to Launch: How AIPX Builds Products, Agents &amp;amp; Systems in Days" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=B7ShZbFUv9k" target="_blank" rel="noopener">From Idea to Launch: How AIPX Builds Products, Agents &amp;amp; Systems in Days</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">Aspin AI</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('B7ShZbFUv9k','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('B7ShZbFUv9k','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="3ZNMyYO1UZo">
+      <a href="https://youtube.com/watch?v=3ZNMyYO1UZo" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/3ZNMyYO1UZo/mqdefault.jpg" alt="AI, 아직도 어디서 시작해야 할지 막막하세요? | 직장인 업무 AI 로드맵 6단계" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=3ZNMyYO1UZo" target="_blank" rel="noopener">AI, 아직도 어디서 시작해야 할지 막막하세요? | 직장인 업무 AI 로드맵 6단계</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">직장인 GPT 멘토</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('3ZNMyYO1UZo','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('3ZNMyYO1UZo','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="Bn7YX_RfAt0">
+      <a href="https://youtube.com/watch?v=Bn7YX_RfAt0" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/Bn7YX_RfAt0/mqdefault.jpg" alt="Best AI Agent Tools In 2026 (Beginner Friendly)" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=Bn7YX_RfAt0" target="_blank" rel="noopener">Best AI Agent Tools In 2026 (Beginner Friendly)</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">Mikey No Code</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('Bn7YX_RfAt0','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('Bn7YX_RfAt0','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="-A7QN29GyfI">
+      <a href="https://youtube.com/watch?v=-A7QN29GyfI" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/-A7QN29GyfI/mqdefault.jpg" alt="29강 [현장강의 AI워커 콘텐츠 제작] Viggle AI로 모션 트랜스퍼(동작 복제 AI) 기능 학습 하기" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=-A7QN29GyfI" target="_blank" rel="noopener">29강 [현장강의 AI워커 콘텐츠 제작] Viggle AI로 모션 트랜스퍼(동작 복제 AI) 기능 학습 하기</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">김에듀 AI강사</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('-A7QN29GyfI','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('-A7QN29GyfI','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="4BJbZIcTwB4">
+      <a href="https://youtube.com/watch?v=4BJbZIcTwB4" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/4BJbZIcTwB4/mqdefault.jpg" alt="#스톤이사#AI시대전문성의재정의#T자형인재#stoneaitv" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=4BJbZIcTwB4" target="_blank" rel="noopener">#스톤이사#AI시대전문성의재정의#T자형인재#stoneaitv</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">스톤 이사</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('4BJbZIcTwB4','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('4BJbZIcTwB4','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="2_hNQLl4-0Y">
+      <a href="https://youtube.com/watch?v=2_hNQLl4-0Y" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/2_hNQLl4-0Y/mqdefault.jpg" alt="3강 코딩 몰라도 1인 기업 가능? 구글의 &amp;#39;안티 그래비티&amp;#39;와 코다리 부장이 제안하는 바이브 코딩의 미래" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=2_hNQLl4-0Y" target="_blank" rel="noopener">3강 코딩 몰라도 1인 기업 가능? 구글의 &amp;#39;안티 그래비티&amp;#39;와 코다리 부장이 제안하는 바이브 코딩의 미래</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">AI로 1인 사업가 되기</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('2_hNQLl4-0Y','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('2_hNQLl4-0Y','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="dA-da5K3euU">
+      <a href="https://youtube.com/watch?v=dA-da5K3euU" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/dA-da5K3euU/mqdefault.jpg" alt="How To Use AI Tools For Free | 5 AI Tools Are Free And Insane | Top 5 Free AI Tools | Simplilearn" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=dA-da5K3euU" target="_blank" rel="noopener">How To Use AI Tools For Free | 5 AI Tools Are Free And Insane | Top 5 Free AI Tools | Simplilearn</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">Simplilearn</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('dA-da5K3euU','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('dA-da5K3euU','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="Sr0riaTunQc">
+      <a href="https://youtube.com/watch?v=Sr0riaTunQc" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/Sr0riaTunQc/mqdefault.jpg" alt="클로드 코워크 완벽 해설｜AI가 내 컴퓨터를 보고 직접 일하는 시대가 왔다" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=Sr0riaTunQc" target="_blank" rel="noopener">클로드 코워크 완벽 해설｜AI가 내 컴퓨터를 보고 직접 일하는 시대가 왔다</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">AI 전문강사 이도혜 | 챗GPT강사</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('Sr0riaTunQc','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('Sr0riaTunQc','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="w4dZpEwxdbk">
+      <a href="https://youtube.com/watch?v=w4dZpEwxdbk" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/w4dZpEwxdbk/mqdefault.jpg" alt="AI 활용법  | AI를 잘 쓰는 사람들의 10가지 방법 (ChatGPT, Gemini, Claude 공통) 같은 AI를 써도 결과가 다른 이유" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=w4dZpEwxdbk" target="_blank" rel="noopener">AI 활용법  | AI를 잘 쓰는 사람들의 10가지 방법 (ChatGPT, Gemini, Claude 공통) 같은 AI를 써도 결과가 다른 이유</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">Korea AGI</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('w4dZpEwxdbk','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('w4dZpEwxdbk','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="rqVzTX8w_w0">
+      <a href="https://youtube.com/watch?v=rqVzTX8w_w0" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/rqVzTX8w_w0/mqdefault.jpg" alt="My AI Workflow Has Changed (Here is What I Learned)" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=rqVzTX8w_w0" target="_blank" rel="noopener">My AI Workflow Has Changed (Here is What I Learned)</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">AI News &amp; Strategy Daily | Nate B Jones</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('rqVzTX8w_w0','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('rqVzTX8w_w0','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="OpwOvyvox3A">
+      <a href="https://youtube.com/watch?v=OpwOvyvox3A" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/OpwOvyvox3A/mqdefault.jpg" alt="Microsoft Scout AI: My Huge Aha Moment for Workflow Automation" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=OpwOvyvox3A" target="_blank" rel="noopener">Microsoft Scout AI: My Huge Aha Moment for Workflow Automation</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">WorkModern</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('OpwOvyvox3A','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('OpwOvyvox3A','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="qY3PNnQDIYU">
+      <a href="https://youtube.com/watch?v=qY3PNnQDIYU" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/qY3PNnQDIYU/mqdefault.jpg" alt="19강 [현장강의 AI워커 콘텐츠 제작] 구글 AI 스튜디오 챗봇(히스토리 활성화) 사용, 이미지(나노바나나) 생성, TTS 생성 방법" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=qY3PNnQDIYU" target="_blank" rel="noopener">19강 [현장강의 AI워커 콘텐츠 제작] 구글 AI 스튜디오 챗봇(히스토리 활성화) 사용, 이미지(나노바나나) 생성, TTS 생성 방법</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">김에듀 AI강사</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('qY3PNnQDIYU','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('qY3PNnQDIYU','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="DoYNW773LKM">
+      <a href="https://youtube.com/watch?v=DoYNW773LKM" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/DoYNW773LKM/mqdefault.jpg" alt="I Tried YouTube AI Automation for 7 Days (Full AI Workflow)" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=DoYNW773LKM" target="_blank" rel="noopener">I Tried YouTube AI Automation for 7 Days (Full AI Workflow)</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">Safeer Shah</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('DoYNW773LKM','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('DoYNW773LKM','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="6DhwDFufdQ4">
+      <a href="https://youtube.com/watch?v=6DhwDFufdQ4" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/6DhwDFufdQ4/mqdefault.jpg" alt="상위 1% 일잘러들은 클로드를 이렇게 씁니다 | 비밀 워크플로우 대공개" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=6DhwDFufdQ4" target="_blank" rel="noopener">상위 1% 일잘러들은 클로드를 이렇게 씁니다 | 비밀 워크플로우 대공개</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">AI 빌더 쏭</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('6DhwDFufdQ4','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('6DhwDFufdQ4','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="erYQQDM5reY">
+      <a href="https://youtube.com/watch?v=erYQQDM5reY" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/erYQQDM5reY/mqdefault.jpg" alt="7 HighLevel AI Automations I Use To Make Money" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=erYQQDM5reY" target="_blank" rel="noopener">7 HighLevel AI Automations I Use To Make Money</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">AI Guy</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('erYQQDM5reY','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('erYQQDM5reY','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="tednLc5Q4hE">
+      <a href="https://youtube.com/watch?v=tednLc5Q4hE" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/tednLc5Q4hE/mqdefault.jpg" alt="노션 어렵다고요? 이 영상 하나로 끝납니다 | 노션 기초 완전정복 1편 | 노션 사용법 | 노션 템플릿" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=tednLc5Q4hE" target="_blank" rel="noopener">노션 어렵다고요? 이 영상 하나로 끝납니다 | 노션 기초 완전정복 1편 | 노션 사용법 | 노션 템플릿</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">시간기획자 마담초이 최민정</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('tednLc5Q4hE','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('tednLc5Q4hE','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="GjR6XRjYXL0">
+      <a href="https://youtube.com/watch?v=GjR6XRjYXL0" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/GjR6XRjYXL0/mqdefault.jpg" alt="I Rebuilt My Windows Workflow With AI — What Actually Saved Time" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=GjR6XRjYXL0" target="_blank" rel="noopener">I Rebuilt My Windows Workflow With AI — What Actually Saved Time</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">Tech Guy</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('GjR6XRjYXL0','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('GjR6XRjYXL0','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="pgH4IIcpHSQ">
+      <a href="https://youtube.com/watch?v=pgH4IIcpHSQ" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/pgH4IIcpHSQ/mqdefault.jpg" alt="Best Free Resources for AI Product Management in 2026" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=pgH4IIcpHSQ" target="_blank" rel="noopener">Best Free Resources for AI Product Management in 2026</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">Neel Sikdar</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('pgH4IIcpHSQ','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('pgH4IIcpHSQ','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="STh8L4374Ec">
+      <a href="https://youtube.com/watch?v=STh8L4374Ec" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/STh8L4374Ec/mqdefault.jpg" alt="[10분 테코톡] 애니의 This UI is AI Generated - 생성형 UI 시대의 프론트엔드" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=STh8L4374Ec" target="_blank" rel="noopener">[10분 테코톡] 애니의 This UI is AI Generated - 생성형 UI 시대의 프론트엔드</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">우아한테크</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('STh8L4374Ec','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('STh8L4374Ec','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="qONBj_i1430">
+      <a href="https://youtube.com/watch?v=qONBj_i1430" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/qONBj_i1430/mqdefault.jpg" alt="The  Money Workflow  AI Lead Response Tutorial" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=qONBj_i1430" target="_blank" rel="noopener">The  Money Workflow  AI Lead Response Tutorial</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">Grow with Technology</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('qONBj_i1430','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('qONBj_i1430','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="s9dpahdG17I">
+      <a href="https://youtube.com/watch?v=s9dpahdG17I" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/s9dpahdG17I/mqdefault.jpg" alt="1시간업무를 5분만에 끝내는 Skywork AI 사용법ㅣPPT·보고서·차트·영상까지 미쳤다!" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=s9dpahdG17I" target="_blank" rel="noopener">1시간업무를 5분만에 끝내는 Skywork AI 사용법ㅣPPT·보고서·차트·영상까지 미쳤다!</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">이너리드</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('s9dpahdG17I','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('s9dpahdG17I','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="GiqyqBKmAfA">
+      <a href="https://youtube.com/watch?v=GiqyqBKmAfA" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/GiqyqBKmAfA/mqdefault.jpg" alt="Inside Google Gemini’s Massive AI Overhaul with Head of Engineering" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=GiqyqBKmAfA" target="_blank" rel="noopener">Inside Google Gemini’s Massive AI Overhaul with Head of Engineering</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">Kevin Stratvert</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('GiqyqBKmAfA','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('GiqyqBKmAfA','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="zJUMenInvk0">
+      <a href="https://youtube.com/watch?v=zJUMenInvk0" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/zJUMenInvk0/mqdefault.jpg" alt="만들어줘: 코딩 모르는 58세의 AI 서비스 도전기" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=zJUMenInvk0" target="_blank" rel="noopener">만들어줘: 코딩 모르는 58세의 AI 서비스 도전기</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">EnterLabs | AI 생존연구소</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('zJUMenInvk0','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('zJUMenInvk0','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="YE5zdhzztlU">
+      <a href="https://youtube.com/watch?v=YE5zdhzztlU" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/YE5zdhzztlU/mqdefault.jpg" alt="How Microsoft PMs Actually Use AI (The Accountability Paradox)" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=YE5zdhzztlU" target="_blank" rel="noopener">How Microsoft PMs Actually Use AI (The Accountability Paradox)</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">TL;DR</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('YE5zdhzztlU','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('YE5zdhzztlU','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="SjxgS1F0yxs">
+      <a href="https://youtube.com/watch?v=SjxgS1F0yxs" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/SjxgS1F0yxs/mqdefault.jpg" alt="AI-Powered Asset and Service Operations with SAP Field Service and Asset Management | Demo" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=SjxgS1F0yxs" target="_blank" rel="noopener">AI-Powered Asset and Service Operations with SAP Field Service and Asset Management | Demo</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">SAP Help and Learning</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('SjxgS1F0yxs','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('SjxgS1F0yxs','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="YcF9ppvmEYU">
+      <a href="https://youtube.com/watch?v=YcF9ppvmEYU" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/YcF9ppvmEYU/mqdefault.jpg" alt="[AI활용 미니특강-출판/그림책]1.그림책 창작과 AI 출판의 모든 것｜초보 창작자를 위한 그림책 제작·출판 완성 로드맵｜#생성형AI출판콘텐츠작가_김보연" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=YcF9ppvmEYU" target="_blank" rel="noopener">[AI활용 미니특강-출판/그림책]1.그림책 창작과 AI 출판의 모든 것｜초보 창작자를 위한 그림책 제작·출판 완성 로드맵｜#생성형AI출판콘텐츠작가_김보연</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">AI아트와 AI리터러시 강사 이음쌤입니다.</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('YcF9ppvmEYU','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('YcF9ppvmEYU','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="eXlUCTcZCc8">
+      <a href="https://youtube.com/watch?v=eXlUCTcZCc8" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/eXlUCTcZCc8/mqdefault.jpg" alt="Laid Off? Your 30-Day Survival Guide for Tech PMs! | AI Product Management" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=eXlUCTcZCc8" target="_blank" rel="noopener">Laid Off? Your 30-Day Survival Guide for Tech PMs! | AI Product Management</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">AI Product Management</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('eXlUCTcZCc8','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('eXlUCTcZCc8','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="Gf9yw65xT6k">
+      <a href="https://youtube.com/watch?v=Gf9yw65xT6k" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/Gf9yw65xT6k/mqdefault.jpg" alt="챗GPT 이미지-2 LG전자 실무 사례 9가지" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=Gf9yw65xT6k" target="_blank" rel="noopener">챗GPT 이미지-2 LG전자 실무 사례 9가지</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">Software in LG</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('Gf9yw65xT6k','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('Gf9yw65xT6k','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="tYllhJkc2Dw">
+      <a href="https://youtube.com/watch?v=tYllhJkc2Dw" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/tYllhJkc2Dw/mqdefault.jpg" alt="파일/링크/이미지 모두AI가 자동분석! 업무시간 90% 절약하는 필수 프로그램👍" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=tYllhJkc2Dw" target="_blank" rel="noopener">파일/링크/이미지 모두AI가 자동분석! 업무시간 90% 절약하는 필수 프로그램👍</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">쉬운 디지털</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('tYllhJkc2Dw','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('tYllhJkc2Dw','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="msd_APlIsRk">
+      <a href="https://youtube.com/watch?v=msd_APlIsRk" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/msd_APlIsRk/mqdefault.jpg" alt="Antigravity 2.0 UPDATE: NEW Agentic AI Coding Agent + Gemini Desktop App!" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=msd_APlIsRk" target="_blank" rel="noopener">Antigravity 2.0 UPDATE: NEW Agentic AI Coding Agent + Gemini Desktop App!</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">WorldofAI</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('msd_APlIsRk','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('msd_APlIsRk','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="UTwqVGLHs7U">
+      <a href="https://youtube.com/watch?v=UTwqVGLHs7U" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/UTwqVGLHs7U/mqdefault.jpg" alt="5 AI Career Paths That Can Make You Rich In 2026" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=UTwqVGLHs7U" target="_blank" rel="noopener">5 AI Career Paths That Can Make You Rich In 2026</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">Reliablesoft Academy</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('UTwqVGLHs7U','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('UTwqVGLHs7U','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="t1a08i7TQpM">
+      <a href="https://youtube.com/watch?v=t1a08i7TQpM" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/t1a08i7TQpM/mqdefault.jpg" alt="ChatGPT로 OBS 원본 영상 1차 가편집하는 매직 프롬프트 공개 | 영상 편집 자동화 2편" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=t1a08i7TQpM" target="_blank" rel="noopener">ChatGPT로 OBS 원본 영상 1차 가편집하는 매직 프롬프트 공개 | 영상 편집 자동화 2편</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">My Toolly</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('t1a08i7TQpM','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('t1a08i7TQpM','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="k9rCiCAzJo4">
+      <a href="https://youtube.com/watch?v=k9rCiCAzJo4" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/k9rCiCAzJo4/mqdefault.jpg" alt="🚀 GPT 5 5 완전 정복! 지금 바로 써먹는 초강력 활용법!~^^ #GPT5.5 #AI활용 #ChatGPT  #GPT5.5설치법 #GPT5.5소개 #GPT활용법 #에이전트ai" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=k9rCiCAzJo4" target="_blank" rel="noopener">🚀 GPT 5 5 완전 정복! 지금 바로 써먹는 초강력 활용법!~^^ #GPT5.5 #AI활용 #ChatGPT  #GPT5.5설치법 #GPT5.5소개 #GPT활용법 #에이전트ai</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">AI수다</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('k9rCiCAzJo4','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('k9rCiCAzJo4','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="TKoNKA_2IXc">
+      <a href="https://youtube.com/watch?v=TKoNKA_2IXc" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/TKoNKA_2IXc/mqdefault.jpg" alt="클로드+하일로우로 AI 영상 3단계 만드는 법 (+프롬프트 무료 제공) | 클로드, 하일로우" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=TKoNKA_2IXc" target="_blank" rel="noopener">클로드+하일로우로 AI 영상 3단계 만드는 법 (+프롬프트 무료 제공) | 클로드, 하일로우</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">태스타 | 콘텐츠 비즈니스 빌더 </span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('TKoNKA_2IXc','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('TKoNKA_2IXc','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="Gl3O-DJzQN4">
+      <a href="https://youtube.com/watch?v=Gl3O-DJzQN4" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/Gl3O-DJzQN4/mqdefault.jpg" alt="Best AI Tool 2026? Turn Images into Viral Videos &amp;amp; Ads Instantly" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=Gl3O-DJzQN4" target="_blank" rel="noopener">Best AI Tool 2026? Turn Images into Viral Videos &amp;amp; Ads Instantly</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">Neural Net</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('Gl3O-DJzQN4','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('Gl3O-DJzQN4','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="XgUUViGlYic">
+      <a href="https://youtube.com/watch?v=XgUUViGlYic" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/XgUUViGlYic/mqdefault.jpg" alt="&amp;quot;업무에 바로 써먹으세요!&amp;quot; 직장인 왕초보 AI 활용 방법" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=XgUUViGlYic" target="_blank" rel="noopener">&amp;quot;업무에 바로 써먹으세요!&amp;quot; 직장인 왕초보 AI 활용 방법</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">노말이</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('XgUUViGlYic','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('XgUUViGlYic','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="1ACcBRa78Z0">
+      <a href="https://youtube.com/watch?v=1ACcBRa78Z0" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/1ACcBRa78Z0/mqdefault.jpg" alt="점 하나에 우주를! 한국 추상미술 선구자 김환기 / YTN" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=1ACcBRa78Z0" target="_blank" rel="noopener">점 하나에 우주를! 한국 추상미술 선구자 김환기 / YTN</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel"> YTN</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('1ACcBRa78Z0','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('1ACcBRa78Z0','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="uSqCKeMcMsw">
+      <a href="https://youtube.com/watch?v=uSqCKeMcMsw" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/uSqCKeMcMsw/mqdefault.jpg" alt="옆자리는 칼퇴했는데 - 너만 모르는 AI 비서 30분 세팅법" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=uSqCKeMcMsw" target="_blank" rel="noopener">옆자리는 칼퇴했는데 - 너만 모르는 AI 비서 30분 세팅법</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">멸종위기 김대리</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('uSqCKeMcMsw','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('uSqCKeMcMsw','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="9FicPuXfNyw">
+      <a href="https://youtube.com/watch?v=9FicPuXfNyw" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/9FicPuXfNyw/mqdefault.jpg" alt="5 AI Workflows That Make 9-to-5s Irrelevant" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=9FicPuXfNyw" target="_blank" rel="noopener">5 AI Workflows That Make 9-to-5s Irrelevant</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">WorkShift AI</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('9FicPuXfNyw','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('9FicPuXfNyw','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="VLccQjepdGs">
+      <a href="https://youtube.com/watch?v=VLccQjepdGs" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/VLccQjepdGs/mqdefault.jpg" alt="엑셀 고치면 PPT가 자동 업데이트? + 이미지 차트를 AI로 1분 만에 엑셀 복원하는 법" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=VLccQjepdGs" target="_blank" rel="noopener">엑셀 고치면 PPT가 자동 업데이트? + 이미지 차트를 AI로 1분 만에 엑셀 복원하는 법</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">케린의 PPT 작업실</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('VLccQjepdGs','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('VLccQjepdGs','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="EVFwIrzCGMA">
+      <a href="https://youtube.com/watch?v=EVFwIrzCGMA" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/EVFwIrzCGMA/mqdefault.jpg" alt="how I got a Business Analyst job @Spotify, my new life building an app (+AI Tools)| Diary of a BA" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=EVFwIrzCGMA" target="_blank" rel="noopener">how I got a Business Analyst job @Spotify, my new life building an app (+AI Tools)| Diary of a BA</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">Lillian Chiu</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('EVFwIrzCGMA','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('EVFwIrzCGMA','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="00MIX5Xirhs">
+      <a href="https://youtube.com/watch?v=00MIX5Xirhs" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/00MIX5Xirhs/mqdefault.jpg" alt="AI 경쟁 시대, 아직도 챗GPT와 제미나이로 일하신다고요? (코덱스, 클로드 코드로 ai 에이전트 쓰는 법)" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=00MIX5Xirhs" target="_blank" rel="noopener">AI 경쟁 시대, 아직도 챗GPT와 제미나이로 일하신다고요? (코덱스, 클로드 코드로 ai 에이전트 쓰는 법)</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">AI 설계자 이안</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('00MIX5Xirhs','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('00MIX5Xirhs','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="km3p0_zowu8">
+      <a href="https://youtube.com/watch?v=km3p0_zowu8" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/km3p0_zowu8/mqdefault.jpg" alt="AI 자동화, 실제 현장에서는 어떻게 바뀌었을까? 자영업 AI도입 사례" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=km3p0_zowu8" target="_blank" rel="noopener">AI 자동화, 실제 현장에서는 어떻게 바뀌었을까? 자영업 AI도입 사례</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">정교수의인생수업</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('km3p0_zowu8','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('km3p0_zowu8','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="9X6b4l2took">
+      <a href="https://youtube.com/watch?v=9X6b4l2took" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/9X6b4l2took/mqdefault.jpg" alt="클로드 초보 가이드 딱 10분만에 쉽게 끝내세요" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=9X6b4l2took" target="_blank" rel="noopener">클로드 초보 가이드 딱 10분만에 쉽게 끝내세요</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">AI:ON 에이아이온💡돈버는법💡</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('9X6b4l2took','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('9X6b4l2took','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="kMsDcZHisss">
+      <a href="https://youtube.com/watch?v=kMsDcZHisss" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/kMsDcZHisss/mqdefault.jpg" alt="Claude Routines Explained: The New AI Automation Workflow" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=kMsDcZHisss" target="_blank" rel="noopener">Claude Routines Explained: The New AI Automation Workflow</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">Akinyemi Bajulaiye</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('kMsDcZHisss','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('kMsDcZHisss','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="wt4EGpqxyzg">
+      <a href="https://youtube.com/watch?v=wt4EGpqxyzg" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/wt4EGpqxyzg/mqdefault.jpg" alt="High Leverage PRDs: The AI Product Manager&amp;#39;s Secret Weapon!" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=wt4EGpqxyzg" target="_blank" rel="noopener">High Leverage PRDs: The AI Product Manager&amp;#39;s Secret Weapon!</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">AI Product Management</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('wt4EGpqxyzg','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('wt4EGpqxyzg','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="HKbGPCjWixo">
+      <a href="https://youtube.com/watch?v=HKbGPCjWixo" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/HKbGPCjWixo/mqdefault.jpg" alt="Inside a $19M YC Startup Building AI Agents for Enterprise" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=HKbGPCjWixo" target="_blank" rel="noopener">Inside a $19M YC Startup Building AI Agents for Enterprise</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">Will Phillips</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('HKbGPCjWixo','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('HKbGPCjWixo','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="Oe6TxavkVhU">
+      <a href="https://youtube.com/watch?v=Oe6TxavkVhU" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/Oe6TxavkVhU/mqdefault.jpg" alt="클로드 코드 | OpenAI 코덱스 | 직장인 활용 잘하려면 꼭 보세요 | 회사 자료 통째로 맡겨봤습니다 | ChatGPT 5.5 | 업무 자동화 | 클로드 토큰 | 챗지피티유료" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=Oe6TxavkVhU" target="_blank" rel="noopener">클로드 코드 | OpenAI 코덱스 | 직장인 활용 잘하려면 꼭 보세요 | 회사 자료 통째로 맡겨봤습니다 | ChatGPT 5.5 | 업무 자동화 | 클로드 토큰 | 챗지피티유료</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">시스템빌더 개발곰곰</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('Oe6TxavkVhU','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('Oe6TxavkVhU','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="vsbdeqTDQhw">
+      <a href="https://youtube.com/watch?v=vsbdeqTDQhw" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/vsbdeqTDQhw/mqdefault.jpg" alt="How to Create 10-Minute AI Videos for Faceless YouTube Channels (FREE)‎" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=vsbdeqTDQhw" target="_blank" rel="noopener">How to Create 10-Minute AI Videos for Faceless YouTube Channels (FREE)‎</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">Nupeflaver Tv </span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('vsbdeqTDQhw','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('vsbdeqTDQhw','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="UKaeFUNmhhc">
+      <a href="https://youtube.com/watch?v=UKaeFUNmhhc" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/UKaeFUNmhhc/mqdefault.jpg" alt="제미나이 AI 영상제작 이렇게 하는겁니다" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=UKaeFUNmhhc" target="_blank" rel="noopener">제미나이 AI 영상제작 이렇게 하는겁니다</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">성장팩트 GrowthFact</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('UKaeFUNmhhc','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('UKaeFUNmhhc','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="EhvAu2JjZHo">
+      <a href="https://youtube.com/watch?v=EhvAu2JjZHo" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/EhvAu2JjZHo/mqdefault.jpg" alt="Create Motivational Videos with AI for FREE 🤯 (Full Workflow)" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=EhvAu2JjZHo" target="_blank" rel="noopener">Create Motivational Videos with AI for FREE 🤯 (Full Workflow)</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">Automation Xpert</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('EhvAu2JjZHo','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('EhvAu2JjZHo','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="nHJYqM8wr4Y">
+      <a href="https://youtube.com/watch?v=nHJYqM8wr4Y" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/nHJYqM8wr4Y/mqdefault.jpg" alt="AI 시대  코더에서 풀스택 빌더로 #agent #builder #agenticai #ai전략 #풀스택빌더" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=nHJYqM8wr4Y" target="_blank" rel="noopener">AI 시대  코더에서 풀스택 빌더로 #agent #builder #agenticai #ai전략 #풀스택빌더</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">Smart Life Lab </span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('nHJYqM8wr4Y','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('nHJYqM8wr4Y','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="NA1c5nluDJA">
+      <a href="https://youtube.com/watch?v=NA1c5nluDJA" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/NA1c5nluDJA/mqdefault.jpg" alt="How To Build AI Automations &amp;amp; AI Workflows Powered By Live Web Data (Step by Step Guide)" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=NA1c5nluDJA" target="_blank" rel="noopener">How To Build AI Automations &amp;amp; AI Workflows Powered By Live Web Data (Step by Step Guide)</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">Rob The AI Guy</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('NA1c5nluDJA','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('NA1c5nluDJA','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="T7XR16n8H9I">
+      <a href="https://youtube.com/watch?v=T7XR16n8H9I" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/T7XR16n8H9I/mqdefault.jpg" alt="프롬프트 엔지니어가 1년 만에 사라졌습니다 — 같은 자리에 800% 폭증한 직무" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=T7XR16n8H9I" target="_blank" rel="noopener">프롬프트 엔지니어가 1년 만에 사라졌습니다 — 같은 자리에 800% 폭증한 직무</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">다니엘 멘탈리티</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('T7XR16n8H9I','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('T7XR16n8H9I','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="TPTWm8gOkSk">
+      <a href="https://youtube.com/watch?v=TPTWm8gOkSk" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/TPTWm8gOkSk/mqdefault.jpg" alt="How I&amp;#39;d Become an AI Product Manager in 2026 ( If I Had 0 Experience + 1:1 free consultation)" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=TPTWm8gOkSk" target="_blank" rel="noopener">How I&amp;#39;d Become an AI Product Manager in 2026 ( If I Had 0 Experience + 1:1 free consultation)</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">The AI PM</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('TPTWm8gOkSk','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('TPTWm8gOkSk','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="tMWL3mFPjcI">
+      <a href="https://youtube.com/watch?v=tMWL3mFPjcI" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/tMWL3mFPjcI/mqdefault.jpg" alt="How Top AI PMs Say &amp;quot;No&amp;quot; (Without Getting Fired)" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=tMWL3mFPjcI" target="_blank" rel="noopener">How Top AI PMs Say &amp;quot;No&amp;quot; (Without Getting Fired)</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">The AI PM</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('tMWL3mFPjcI','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('tMWL3mFPjcI','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="aJm6HOmhwvw">
+      <a href="https://youtube.com/watch?v=aJm6HOmhwvw" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/aJm6HOmhwvw/mqdefault.jpg" alt="AI Competitor Analysis: Full Guide to Breakdown Any Product in 10 Minutes | PM Framework 2026" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=aJm6HOmhwvw" target="_blank" rel="noopener">AI Competitor Analysis: Full Guide to Breakdown Any Product in 10 Minutes | PM Framework 2026</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">Figrd.</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('aJm6HOmhwvw','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('aJm6HOmhwvw','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="6nPZ0V0zIRY">
+      <a href="https://youtube.com/watch?v=6nPZ0V0zIRY" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/6nPZ0V0zIRY/mqdefault.jpg" alt="클로드 코드 vs OpenAI 코덱스 | 고민중이라면 당장 이거 써보세요 | ChatGPT 5.5 | 챗지피티코딩 | 업무 자동화 | 클로드토큰" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=6nPZ0V0zIRY" target="_blank" rel="noopener">클로드 코드 vs OpenAI 코덱스 | 고민중이라면 당장 이거 써보세요 | ChatGPT 5.5 | 챗지피티코딩 | 업무 자동화 | 클로드토큰</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">시스템빌더 개발곰곰</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('6nPZ0V0zIRY','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('6nPZ0V0zIRY','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="ULR1WWBpARU">
+      <a href="https://youtube.com/watch?v=ULR1WWBpARU" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/ULR1WWBpARU/mqdefault.jpg" alt="충격! 바이브코딩을 하면 나를 망친다고? 앤스로픽이  경고한 바이브 코딩 치명적 습관 3가지!" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=ULR1WWBpARU" target="_blank" rel="noopener">충격! 바이브코딩을 하면 나를 망친다고? 앤스로픽이  경고한 바이브 코딩 치명적 습관 3가지!</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">공부 How</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('ULR1WWBpARU','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('ULR1WWBpARU','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="AW-Z277VN7Y">
+      <a href="https://youtube.com/watch?v=AW-Z277VN7Y" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/AW-Z277VN7Y/mqdefault.jpg" alt="How to Turn ChatGPT Prompt Into a Complete Visual Workflow (Step-by-Step Guide)" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=AW-Z277VN7Y" target="_blank" rel="noopener">How to Turn ChatGPT Prompt Into a Complete Visual Workflow (Step-by-Step Guide)</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">AI Master</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('AW-Z277VN7Y','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('AW-Z277VN7Y','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="St87upSds_Q">
+      <a href="https://youtube.com/watch?v=St87upSds_Q" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/St87upSds_Q/mqdefault.jpg" alt="I used AI to Plan My Entire YouTube Channel in 10 Minutes! (Poppy AI Tutorial)" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=St87upSds_Q" target="_blank" rel="noopener">I used AI to Plan My Entire YouTube Channel in 10 Minutes! (Poppy AI Tutorial)</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">Dom Bavaro</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('St87upSds_Q','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('St87upSds_Q','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="r4fQzqtqdPo">
+      <a href="https://youtube.com/watch?v=r4fQzqtqdPo" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/r4fQzqtqdPo/mqdefault.jpg" alt="We Are All Getting Dumber... Some Faster Than Others" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=r4fQzqtqdPo" target="_blank" rel="noopener">We Are All Getting Dumber... Some Faster Than Others</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">How Money Works</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('r4fQzqtqdPo','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('r4fQzqtqdPo','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="ir0z_oaG_ao">
+      <a href="https://youtube.com/watch?v=ir0z_oaG_ao" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/ir0z_oaG_ao/mqdefault.jpg" alt="Top 10 AI Workflows for Small Businesses | GoHighLevel AI" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=ir0z_oaG_ao" target="_blank" rel="noopener">Top 10 AI Workflows for Small Businesses | GoHighLevel AI</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">Jon Law </span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('ir0z_oaG_ao','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('ir0z_oaG_ao','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="IR3ZHoH-rs8">
+      <a href="https://youtube.com/watch?v=IR3ZHoH-rs8" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/IR3ZHoH-rs8/mqdefault.jpg" alt="클로드 디자인 미쳤다… AI로 디자인 시스템 10분 완성 (Claude Design 리뷰)" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=IR3ZHoH-rs8" target="_blank" rel="noopener">클로드 디자인 미쳤다… AI로 디자인 시스템 10분 완성 (Claude Design 리뷰)</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">세상의모든AI</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('IR3ZHoH-rs8','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('IR3ZHoH-rs8','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="Agl7fYCklOQ">
+      <a href="https://youtube.com/watch?v=Agl7fYCklOQ" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/Agl7fYCklOQ/mqdefault.jpg" alt="&amp;quot;퇴근이 2시간 빨라집니다&amp;quot; 챗 GPT 다음 단계인 &amp;#39;AI 에이전트&amp;#39; 활용 가이드｜클래스e｜알고e즘" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=Agl7fYCklOQ" target="_blank" rel="noopener">&amp;quot;퇴근이 2시간 빨라집니다&amp;quot; 챗 GPT 다음 단계인 &amp;#39;AI 에이전트&amp;#39; 활용 가이드｜클래스e｜알고e즘</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">EBSCulture (EBS 교양)</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('Agl7fYCklOQ','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('Agl7fYCklOQ','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="7yZ0LG5301Q">
+      <a href="https://youtube.com/watch?v=7yZ0LG5301Q" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/7yZ0LG5301Q/mqdefault.jpg" alt="New Claude AI just UNLOCKED a High Demand Digital Product!" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=7yZ0LG5301Q" target="_blank" rel="noopener">New Claude AI just UNLOCKED a High Demand Digital Product!</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">Luna Vega</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('7yZ0LG5301Q','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('7yZ0LG5301Q','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    <div class="video-card" data-category="AI 트렌드" data-id="D6wYV4D8QKw">
+      <a href="https://youtube.com/watch?v=D6wYV4D8QKw" target="_blank" rel="noopener">
+        <img class="thumbnail" src="https://i.ytimg.com/vi/D6wYV4D8QKw/mqdefault.jpg" alt="Accio Work AI Review (2026) – Automate Your Business with AI Agents" loading="lazy">
+      </a>
+      <div class="card-body">
+        <span class="category-tag">AI 트렌드</span>
+        <h3><a href="https://youtube.com/watch?v=D6wYV4D8QKw" target="_blank" rel="noopener">Accio Work AI Review (2026) – Automate Your Business with AI Agents</a></h3>
+        <p class="summary">API 키 연결 후 실제 요약이 생성됩니다.</p>
+        <div class="card-meta">
+          <span class="channel">MATLAB TECH</span>
+          <span class="score">점수 75</span>
+        </div>
+        <div class="feedback-buttons">
+          <button class="btn-good" onclick="sendFeedback('D6wYV4D8QKw','GOOD')" title="유용해요">👍</button>
+          <button class="btn-bad" onclick="sendFeedback('D6wYV4D8QKw','BAD')" title="별로예요">👎</button>
+        </div>
+      </div>
+    </div>
+    </div>
+    <div id="no-results" class="hidden">검색 결과가 없습니다.</div>
+  </main>
+  <script>
+    const SEARCH_INDEX = [{"id": "HPr1IuR4MqI", "title": "GPT가 만든 보고서 수준이 충격입니다  회사 업무 자동화가 더 빨라질 수 있습니다", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "AI지식정보연구소"}, {"id": "lKYaaLH1idc", "title": "How to become an AI Product Manager in 90 Days (No MBA, No Coding)", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "Neel Sikdar"}, {"id": "zms-5rvr68c", "title": "[HR AI 활용 실무] ChatGPT로 교육 커리큘럼 쉽게 설계하기!", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "디자인 AI 개발 강의 해커스캠퍼스"}, {"id": "NPcx5K7J-no", "title": "AI는 사람을 대체하는가 확장하는가? | Co-Intelligence [북살롱16]", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "Shift Studio"}, {"id": "Ys-gOAS-Hss", "title": "좋은 인포그래픽은 어떻게 만들어질까? 데이터 스토리텔링의 핵심 원리 | #AI활용강사_김보연 #따능AI활용강사_김보연 #AI영화감독_김보연 #생성형AI출판콘텐츠작가_김보연", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "AI아트와 AI활용강사 이음쌤입니다."}, {"id": "B7ShZbFUv9k", "title": "From Idea to Launch: How AIPX Builds Products, Agents &amp; Systems in Days", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "Aspin AI"}, {"id": "3ZNMyYO1UZo", "title": "AI, 아직도 어디서 시작해야 할지 막막하세요? | 직장인 업무 AI 로드맵 6단계", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "직장인 GPT 멘토"}, {"id": "Bn7YX_RfAt0", "title": "Best AI Agent Tools In 2026 (Beginner Friendly)", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "Mikey No Code"}, {"id": "-A7QN29GyfI", "title": "29강 [현장강의 AI워커 콘텐츠 제작] Viggle AI로 모션 트랜스퍼(동작 복제 AI) 기능 학습 하기", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "김에듀 AI강사"}, {"id": "4BJbZIcTwB4", "title": "#스톤이사#AI시대전문성의재정의#T자형인재#stoneaitv", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "스톤 이사"}, {"id": "2_hNQLl4-0Y", "title": "3강 코딩 몰라도 1인 기업 가능? 구글의 &#39;안티 그래비티&#39;와 코다리 부장이 제안하는 바이브 코딩의 미래", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "AI로 1인 사업가 되기"}, {"id": "dA-da5K3euU", "title": "How To Use AI Tools For Free | 5 AI Tools Are Free And Insane | Top 5 Free AI Tools | Simplilearn", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "Simplilearn"}, {"id": "Sr0riaTunQc", "title": "클로드 코워크 완벽 해설｜AI가 내 컴퓨터를 보고 직접 일하는 시대가 왔다", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "AI 전문강사 이도혜 | 챗GPT강사"}, {"id": "w4dZpEwxdbk", "title": "AI 활용법  | AI를 잘 쓰는 사람들의 10가지 방법 (ChatGPT, Gemini, Claude 공통) 같은 AI를 써도 결과가 다른 이유", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "Korea AGI"}, {"id": "rqVzTX8w_w0", "title": "My AI Workflow Has Changed (Here is What I Learned)", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "AI News & Strategy Daily | Nate B Jones"}, {"id": "OpwOvyvox3A", "title": "Microsoft Scout AI: My Huge Aha Moment for Workflow Automation", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "WorkModern"}, {"id": "qY3PNnQDIYU", "title": "19강 [현장강의 AI워커 콘텐츠 제작] 구글 AI 스튜디오 챗봇(히스토리 활성화) 사용, 이미지(나노바나나) 생성, TTS 생성 방법", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "김에듀 AI강사"}, {"id": "DoYNW773LKM", "title": "I Tried YouTube AI Automation for 7 Days (Full AI Workflow)", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "Safeer Shah"}, {"id": "6DhwDFufdQ4", "title": "상위 1% 일잘러들은 클로드를 이렇게 씁니다 | 비밀 워크플로우 대공개", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "AI 빌더 쏭"}, {"id": "erYQQDM5reY", "title": "7 HighLevel AI Automations I Use To Make Money", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "AI Guy"}, {"id": "tednLc5Q4hE", "title": "노션 어렵다고요? 이 영상 하나로 끝납니다 | 노션 기초 완전정복 1편 | 노션 사용법 | 노션 템플릿", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "시간기획자 마담초이 최민정"}, {"id": "GjR6XRjYXL0", "title": "I Rebuilt My Windows Workflow With AI — What Actually Saved Time", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "Tech Guy"}, {"id": "pgH4IIcpHSQ", "title": "Best Free Resources for AI Product Management in 2026", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "Neel Sikdar"}, {"id": "STh8L4374Ec", "title": "[10분 테코톡] 애니의 This UI is AI Generated - 생성형 UI 시대의 프론트엔드", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "우아한테크"}, {"id": "qONBj_i1430", "title": "The  Money Workflow  AI Lead Response Tutorial", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "Grow with Technology"}, {"id": "s9dpahdG17I", "title": "1시간업무를 5분만에 끝내는 Skywork AI 사용법ㅣPPT·보고서·차트·영상까지 미쳤다!", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "이너리드"}, {"id": "GiqyqBKmAfA", "title": "Inside Google Gemini’s Massive AI Overhaul with Head of Engineering", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "Kevin Stratvert"}, {"id": "zJUMenInvk0", "title": "만들어줘: 코딩 모르는 58세의 AI 서비스 도전기", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "EnterLabs | AI 생존연구소"}, {"id": "YE5zdhzztlU", "title": "How Microsoft PMs Actually Use AI (The Accountability Paradox)", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "TL;DR"}, {"id": "SjxgS1F0yxs", "title": "AI-Powered Asset and Service Operations with SAP Field Service and Asset Management | Demo", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "SAP Help and Learning"}, {"id": "YcF9ppvmEYU", "title": "[AI활용 미니특강-출판/그림책]1.그림책 창작과 AI 출판의 모든 것｜초보 창작자를 위한 그림책 제작·출판 완성 로드맵｜#생성형AI출판콘텐츠작가_김보연", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "AI아트와 AI리터러시 강사 이음쌤입니다."}, {"id": "eXlUCTcZCc8", "title": "Laid Off? Your 30-Day Survival Guide for Tech PMs! | AI Product Management", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "AI Product Management"}, {"id": "Gf9yw65xT6k", "title": "챗GPT 이미지-2 LG전자 실무 사례 9가지", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "Software in LG"}, {"id": "tYllhJkc2Dw", "title": "파일/링크/이미지 모두AI가 자동분석! 업무시간 90% 절약하는 필수 프로그램👍", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "쉬운 디지털"}, {"id": "msd_APlIsRk", "title": "Antigravity 2.0 UPDATE: NEW Agentic AI Coding Agent + Gemini Desktop App!", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "WorldofAI"}, {"id": "UTwqVGLHs7U", "title": "5 AI Career Paths That Can Make You Rich In 2026", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "Reliablesoft Academy"}, {"id": "t1a08i7TQpM", "title": "ChatGPT로 OBS 원본 영상 1차 가편집하는 매직 프롬프트 공개 | 영상 편집 자동화 2편", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "My Toolly"}, {"id": "k9rCiCAzJo4", "title": "🚀 GPT 5 5 완전 정복! 지금 바로 써먹는 초강력 활용법!~^^ #GPT5.5 #AI활용 #ChatGPT  #GPT5.5설치법 #GPT5.5소개 #GPT활용법 #에이전트ai", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "AI수다"}, {"id": "TKoNKA_2IXc", "title": "클로드+하일로우로 AI 영상 3단계 만드는 법 (+프롬프트 무료 제공) | 클로드, 하일로우", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "태스타 | 콘텐츠 비즈니스 빌더 "}, {"id": "Gl3O-DJzQN4", "title": "Best AI Tool 2026? Turn Images into Viral Videos &amp; Ads Instantly", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "Neural Net"}, {"id": "XgUUViGlYic", "title": "&quot;업무에 바로 써먹으세요!&quot; 직장인 왕초보 AI 활용 방법", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "노말이"}, {"id": "1ACcBRa78Z0", "title": "점 하나에 우주를! 한국 추상미술 선구자 김환기 / YTN", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": " YTN"}, {"id": "uSqCKeMcMsw", "title": "옆자리는 칼퇴했는데 - 너만 모르는 AI 비서 30분 세팅법", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "멸종위기 김대리"}, {"id": "9FicPuXfNyw", "title": "5 AI Workflows That Make 9-to-5s Irrelevant", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "WorkShift AI"}, {"id": "VLccQjepdGs", "title": "엑셀 고치면 PPT가 자동 업데이트? + 이미지 차트를 AI로 1분 만에 엑셀 복원하는 법", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "케린의 PPT 작업실"}, {"id": "EVFwIrzCGMA", "title": "how I got a Business Analyst job @Spotify, my new life building an app (+AI Tools)| Diary of a BA", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "Lillian Chiu"}, {"id": "00MIX5Xirhs", "title": "AI 경쟁 시대, 아직도 챗GPT와 제미나이로 일하신다고요? (코덱스, 클로드 코드로 ai 에이전트 쓰는 법)", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "AI 설계자 이안"}, {"id": "km3p0_zowu8", "title": "AI 자동화, 실제 현장에서는 어떻게 바뀌었을까? 자영업 AI도입 사례", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "정교수의인생수업"}, {"id": "9X6b4l2took", "title": "클로드 초보 가이드 딱 10분만에 쉽게 끝내세요", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "AI:ON 에이아이온💡돈버는법💡"}, {"id": "kMsDcZHisss", "title": "Claude Routines Explained: The New AI Automation Workflow", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "Akinyemi Bajulaiye"}, {"id": "wt4EGpqxyzg", "title": "High Leverage PRDs: The AI Product Manager&#39;s Secret Weapon!", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "AI Product Management"}, {"id": "HKbGPCjWixo", "title": "Inside a $19M YC Startup Building AI Agents for Enterprise", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "Will Phillips"}, {"id": "Oe6TxavkVhU", "title": "클로드 코드 | OpenAI 코덱스 | 직장인 활용 잘하려면 꼭 보세요 | 회사 자료 통째로 맡겨봤습니다 | ChatGPT 5.5 | 업무 자동화 | 클로드 토큰 | 챗지피티유료", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "시스템빌더 개발곰곰"}, {"id": "vsbdeqTDQhw", "title": "How to Create 10-Minute AI Videos for Faceless YouTube Channels (FREE)‎", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "Nupeflaver Tv "}, {"id": "UKaeFUNmhhc", "title": "제미나이 AI 영상제작 이렇게 하는겁니다", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "성장팩트 GrowthFact"}, {"id": "EhvAu2JjZHo", "title": "Create Motivational Videos with AI for FREE 🤯 (Full Workflow)", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "Automation Xpert"}, {"id": "nHJYqM8wr4Y", "title": "AI 시대  코더에서 풀스택 빌더로 #agent #builder #agenticai #ai전략 #풀스택빌더", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "Smart Life Lab "}, {"id": "NA1c5nluDJA", "title": "How To Build AI Automations &amp; AI Workflows Powered By Live Web Data (Step by Step Guide)", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "Rob The AI Guy"}, {"id": "T7XR16n8H9I", "title": "프롬프트 엔지니어가 1년 만에 사라졌습니다 — 같은 자리에 800% 폭증한 직무", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "다니엘 멘탈리티"}, {"id": "TPTWm8gOkSk", "title": "How I&#39;d Become an AI Product Manager in 2026 ( If I Had 0 Experience + 1:1 free consultation)", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "The AI PM"}, {"id": "tMWL3mFPjcI", "title": "How Top AI PMs Say &quot;No&quot; (Without Getting Fired)", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "The AI PM"}, {"id": "aJm6HOmhwvw", "title": "AI Competitor Analysis: Full Guide to Breakdown Any Product in 10 Minutes | PM Framework 2026", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "Figrd."}, {"id": "6nPZ0V0zIRY", "title": "클로드 코드 vs OpenAI 코덱스 | 고민중이라면 당장 이거 써보세요 | ChatGPT 5.5 | 챗지피티코딩 | 업무 자동화 | 클로드토큰", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "시스템빌더 개발곰곰"}, {"id": "ULR1WWBpARU", "title": "충격! 바이브코딩을 하면 나를 망친다고? 앤스로픽이  경고한 바이브 코딩 치명적 습관 3가지!", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "공부 How"}, {"id": "AW-Z277VN7Y", "title": "How to Turn ChatGPT Prompt Into a Complete Visual Workflow (Step-by-Step Guide)", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "AI Master"}, {"id": "St87upSds_Q", "title": "I used AI to Plan My Entire YouTube Channel in 10 Minutes! (Poppy AI Tutorial)", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "Dom Bavaro"}, {"id": "r4fQzqtqdPo", "title": "We Are All Getting Dumber... Some Faster Than Others", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "How Money Works"}, {"id": "ir0z_oaG_ao", "title": "Top 10 AI Workflows for Small Businesses | GoHighLevel AI", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "Jon Law "}, {"id": "IR3ZHoH-rs8", "title": "클로드 디자인 미쳤다… AI로 디자인 시스템 10분 완성 (Claude Design 리뷰)", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "세상의모든AI"}, {"id": "Agl7fYCklOQ", "title": "&quot;퇴근이 2시간 빨라집니다&quot; 챗 GPT 다음 단계인 &#39;AI 에이전트&#39; 활용 가이드｜클래스e｜알고e즘", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "EBSCulture (EBS 교양)"}, {"id": "7yZ0LG5301Q", "title": "New Claude AI just UNLOCKED a High Demand Digital Product!", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "Luna Vega"}, {"id": "D6wYV4D8QKw", "title": "Accio Work AI Review (2026) – Automate Your Business with AI Agents", "summary": "API 키 연결 후 실제 요약이 생성됩니다.", "category": "AI 트렌드", "channel": "MATLAB TECH"}];
+    const FEEDBACK_ENDPOINT = '';
+  </script>
+  <script>// Category filter & search state
+let activeCategory = 'all';
+let searchQuery = '';
+
+function filterByCategory(btn, category) {
+  activeCategory = category;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  applyFilters();
+}
+
+function handleSearch(query) {
+  searchQuery = query.toLowerCase().trim();
+  applyFilters();
+}
+
+function applyFilters() {
+  const cards = document.querySelectorAll('.video-card');
+  let visible = 0;
+
+  cards.forEach(card => {
+    const catMatch = activeCategory === 'all' || card.dataset.category === activeCategory;
+
+    let searchMatch = true;
+    if (searchQuery) {
+      const item = SEARCH_INDEX.find(s => s.id === card.dataset.id);
+      if (item) {
+        const haystack = `${item.title} ${item.summary} ${item.channel} ${item.category}`.toLowerCase();
+        searchMatch = haystack.includes(searchQuery);
+      } else {
+        searchMatch = false;
+      }
+    }
+
+    const show = catMatch && searchMatch;
+    card.style.display = show ? '' : 'none';
+    if (show) visible++;
+  });
+
+  const noResults = document.getElementById('no-results');
+  if (noResults) noResults.classList.toggle('hidden', visible > 0);
+}
+
+async function sendFeedback(videoId, rating) {
+  const card = document.querySelector(`[data-id="${videoId}"]`);
+  if (!card) return;
+
+  const btn = card.querySelector(`.btn-${rating.toLowerCase()}`);
+  if (btn) { btn.disabled = true; }
+
+  const payload = {
+    video_id: videoId,
+    rating: rating,
+    timestamp: new Date().toISOString(),
+    processed: false,
+  };
+
+  const endpoint = typeof FEEDBACK_ENDPOINT !== 'undefined' ? FEEDBACK_ENDPOINT : '';
+
+  if (!endpoint) {
+    // Formspree 미설정 시 localStorage에 임시 저장
+    try {
+      const stored = JSON.parse(localStorage.getItem('pending_feedback') || '[]');
+      stored.push(payload);
+      localStorage.setItem('pending_feedback', JSON.stringify(stored));
+    } catch (_) {}
+    showToast(rating === 'GOOD' ? '👍 감사합니다!' : '👎 피드백 감사합니다!');
+    return;
+  }
+
+  try {
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (res.ok) {
+      showToast(rating === 'GOOD' ? '👍 감사합니다!' : '👎 피드백 감사합니다!');
+    } else {
+      throw new Error(`HTTP ${res.status}`);
+    }
+  } catch (e) {
+    console.error('Feedback error:', e);
+    if (btn) btn.disabled = false;
+    showToast('전송 실패, 다시 시도해 주세요.');
+  }
+}
+
+function showToast(msg) {
+  const existing = document.querySelector('.toast');
+  if (existing) existing.remove();
+
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = msg;
+  document.body.appendChild(toast);
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => toast.classList.add('show'));
+  });
+  setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => toast.remove(), 300);
+  }, 2200);
+}
+</script>
+</body>
+</html>
