@@ -1,5 +1,47 @@
 [
   {
+    "video_id": "kGYjkghkyNQ",
+    "title": "AI가 더 잘 알아듣는 글쓰기, 마크다운 활용법 | ChatGPT 마스터 클래스 3-3",
+    "channel": "히크로도스 Hic Rhodus",
+    "published_at": "2026-06-25T01:15:59Z",
+    "url": "https://youtube.com/watch?v=kGYjkghkyNQ",
+    "thumbnail": "https://i.ytimg.com/vi/kGYjkghkyNQ/mqdefault.jpg",
+    "category": "AI 툴 활용",
+    "score": 75,
+    "summary": "API 키 연결 후 실제 요약이 생성됩니다.",
+    "verdict": "include",
+    "exclude_reason": null,
+    "scored_at": "2026-06-27T22:55:57.070856+00:00"
+  },
+  {
+    "video_id": "QGzaJta2eHo",
+    "title": "I Tested SureThing — The AI Agent That Actually Executes Tasks While I Sleep",
+    "channel": "AI BORDER",
+    "published_at": "2026-06-26T01:25:27Z",
+    "url": "https://youtube.com/watch?v=QGzaJta2eHo",
+    "thumbnail": "https://i.ytimg.com/vi/QGzaJta2eHo/mqdefault.jpg",
+    "category": "AI 트렌드",
+    "score": 75,
+    "summary": "API 키 연결 후 실제 요약이 생성됩니다.",
+    "verdict": "include",
+    "exclude_reason": null,
+    "scored_at": "2026-06-27T22:55:57.070856+00:00"
+  },
+  {
+    "video_id": "3kOLDkWXRk4",
+    "title": "How I Automated Google Flow to Generate Unlimited AI Images &amp; Videos",
+    "channel": "Josephs AI",
+    "published_at": "2026-06-26T08:50:56Z",
+    "url": "https://youtube.com/watch?v=3kOLDkWXRk4",
+    "thumbnail": "https://i.ytimg.com/vi/3kOLDkWXRk4/mqdefault.jpg",
+    "category": "업무 자동화",
+    "score": 75,
+    "summary": "API 키 연결 후 실제 요약이 생성됩니다.",
+    "verdict": "include",
+    "exclude_reason": null,
+    "scored_at": "2026-06-27T22:55:57.070856+00:00"
+  },
+  {
     "video_id": "hLNn4mDhR9c",
     "title": "제발 카피하세요. | 클로드 AI 업무 자동화 3단계",
     "channel": "그린코끼리 AI",
