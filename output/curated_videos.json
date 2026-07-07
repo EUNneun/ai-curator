@@ -1,5 +1,33 @@
 [
   {
+    "video_id": "gQt-2hCXdig",
+    "title": "n8n vs Claude Cowork: When to Use an AI Agent vs a Real Workflow (How to Choose)",
+    "channel": "Sunny Israni",
+    "published_at": "2026-07-02T15:26:46Z",
+    "url": "https://youtube.com/watch?v=gQt-2hCXdig",
+    "thumbnail": "https://i.ytimg.com/vi/gQt-2hCXdig/mqdefault.jpg",
+    "category": "AI 툴 활용",
+    "score": 75,
+    "summary": "API 키 연결 후 실제 요약이 생성됩니다.",
+    "verdict": "include",
+    "exclude_reason": null,
+    "scored_at": "2026-07-07T22:52:06.259232+00:00"
+  },
+  {
+    "video_id": "XTBWVVcF3Pk",
+    "title": "How I Make Opus Think Like Fable (5 easy steps)",
+    "channel": "Nate Herk | AI Automation",
+    "published_at": "2026-07-07T02:44:05Z",
+    "url": "https://youtube.com/watch?v=XTBWVVcF3Pk",
+    "thumbnail": "https://i.ytimg.com/vi/XTBWVVcF3Pk/mqdefault.jpg",
+    "category": "AI 트렌드",
+    "score": 75,
+    "summary": "API 키 연결 후 실제 요약이 생성됩니다.",
+    "verdict": "include",
+    "exclude_reason": null,
+    "scored_at": "2026-07-07T22:52:06.259232+00:00"
+  },
+  {
     "video_id": "lbFkHeWllvE",
     "title": "노션 고수들만 쓴다는 노션 AI 꿀기능 7가지 | 노션 AI 활용법 총정리 | 2026 노션 사용법 4편 | 노션 기초 | 노션 템플릿",
     "channel": "시간기획자 마담초이 최민정",
