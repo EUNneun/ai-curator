@@ -1,5 +1,33 @@
 [
   {
+    "video_id": "-_xcv5MXb5g",
+    "title": "AI Project Management Tools (Step By Step Guide 2026)",
+    "channel": "AI Daily",
+    "published_at": "2026-07-20T05:51:45Z",
+    "url": "https://youtube.com/watch?v=-_xcv5MXb5g",
+    "thumbnail": "https://i.ytimg.com/vi/-_xcv5MXb5g/mqdefault.jpg",
+    "category": "AI 툴 활용",
+    "score": 75,
+    "summary": "API 키 연결 후 실제 요약이 생성됩니다.",
+    "verdict": "include",
+    "exclude_reason": null,
+    "scored_at": "2026-07-25T22:44:36.701157+00:00"
+  },
+  {
+    "video_id": "IbFaY3xFpZM",
+    "title": "I Tested 100+ Hermes Agent Automations. These Are The Best",
+    "channel": "Dubibubi",
+    "published_at": "2026-07-23T23:08:15Z",
+    "url": "https://youtube.com/watch?v=IbFaY3xFpZM",
+    "thumbnail": "https://i.ytimg.com/vi/IbFaY3xFpZM/mqdefault.jpg",
+    "category": "AI 트렌드",
+    "score": 75,
+    "summary": "API 키 연결 후 실제 요약이 생성됩니다.",
+    "verdict": "include",
+    "exclude_reason": null,
+    "scored_at": "2026-07-25T22:44:36.701157+00:00"
+  },
+  {
     "video_id": "tPtrm8MNl3w",
     "title": "실무형 AI 에이전트 구축 가이드: Hermes와 Claude Code 활용 전략_260718",
     "channel": "BLUEVIO",
