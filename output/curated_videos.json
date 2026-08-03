@@ -1,5 +1,47 @@
 [
   {
+    "video_id": "C_wGIoJVwS4",
+    "title": "[AI 활용 기획] 텍스트만 붙여 넣으면 끝? 쉽게 활용하는 Napkin AI",
+    "channel": "디자인 AI 개발 강의 해커스캠퍼스",
+    "published_at": "2026-08-03T02:18:34Z",
+    "url": "https://youtube.com/watch?v=C_wGIoJVwS4",
+    "thumbnail": "https://i.ytimg.com/vi/C_wGIoJVwS4/mqdefault.jpg",
+    "category": "AI 툴 활용",
+    "score": 75,
+    "summary": "API 키 연결 후 실제 요약이 생성됩니다.",
+    "verdict": "include",
+    "exclude_reason": null,
+    "scored_at": "2026-08-03T22:52:49.900838+00:00"
+  },
+  {
+    "video_id": "zgfiEdURW6U",
+    "title": "AI Product Manager Reality Check: What Nobody Tells You (2026)",
+    "channel": "NorthStar PM",
+    "published_at": "2026-07-30T15:30:12Z",
+    "url": "https://youtube.com/watch?v=zgfiEdURW6U",
+    "thumbnail": "https://i.ytimg.com/vi/zgfiEdURW6U/mqdefault.jpg",
+    "category": "AI 트렌드",
+    "score": 75,
+    "summary": "API 키 연결 후 실제 요약이 생성됩니다.",
+    "verdict": "include",
+    "exclude_reason": null,
+    "scored_at": "2026-08-03T22:52:49.900838+00:00"
+  },
+  {
+    "video_id": "Q0b4zbmFNYM",
+    "title": "MiniMax H3 GGUF in ComfyUI - The world&#39;s best AI video generator for free - First Frame Last Frame",
+    "channel": "AI Late to Class ",
+    "published_at": "2026-08-03T11:07:57Z",
+    "url": "https://youtube.com/watch?v=Q0b4zbmFNYM",
+    "thumbnail": "https://i.ytimg.com/vi/Q0b4zbmFNYM/mqdefault.jpg",
+    "category": "업무 자동화",
+    "score": 75,
+    "summary": "API 키 연결 후 실제 요약이 생성됩니다.",
+    "verdict": "include",
+    "exclude_reason": null,
+    "scored_at": "2026-08-03T22:52:49.900838+00:00"
+  },
+  {
     "video_id": "e4E-SOupkYU",
     "title": "AI 에이전트가 바꾸는 업무의 미래: 헤르메스(Hermes) 실전 활용 가이드_260731",
     "channel": "BLUEVIO",
