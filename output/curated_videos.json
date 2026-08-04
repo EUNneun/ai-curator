@@ -1,5 +1,33 @@
 [
   {
+    "video_id": "gmVYUJK4onE",
+    "title": "클로드를 활용하여 엑셀에서 5분만에 사업분석, 10억 투자유치 분석 하는 방법! #claude #클로드 #사업계획서 #사업계획서작성",
+    "channel": "IDEAiPlus",
+    "published_at": "2026-08-04T15:30:08Z",
+    "url": "https://youtube.com/watch?v=gmVYUJK4onE",
+    "thumbnail": "https://i.ytimg.com/vi/gmVYUJK4onE/mqdefault.jpg",
+    "category": "AI 툴 활용",
+    "score": 75,
+    "summary": "API 키 연결 후 실제 요약이 생성됩니다.",
+    "verdict": "include",
+    "exclude_reason": null,
+    "scored_at": "2026-08-04T22:53:05.361671+00:00"
+  },
+  {
+    "video_id": "__EiOCNfAv8",
+    "title": "AI Tool For Office Platform (Step By Step Guide 2026)",
+    "channel": "Venture Lab",
+    "published_at": "2026-07-31T04:44:47Z",
+    "url": "https://youtube.com/watch?v=__EiOCNfAv8",
+    "thumbnail": "https://i.ytimg.com/vi/__EiOCNfAv8/mqdefault.jpg",
+    "category": "AI 트렌드",
+    "score": 75,
+    "summary": "API 키 연결 후 실제 요약이 생성됩니다.",
+    "verdict": "include",
+    "exclude_reason": null,
+    "scored_at": "2026-08-04T22:53:05.361671+00:00"
+  },
+  {
     "video_id": "C_wGIoJVwS4",
     "title": "[AI 활용 기획] 텍스트만 붙여 넣으면 끝? 쉽게 활용하는 Napkin AI",
     "channel": "디자인 AI 개발 강의 해커스캠퍼스",
