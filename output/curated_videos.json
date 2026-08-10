@@ -1,5 +1,47 @@
 [
   {
+    "video_id": "78E4rKu-EhI",
+    "title": "실무형 AI 에이전트 구축을 위한 GitHub 인기 리포 및 MCP 활용 가이드_260808",
+    "channel": "BLUEVIO",
+    "published_at": "2026-08-08T10:26:12Z",
+    "url": "https://youtube.com/watch?v=78E4rKu-EhI",
+    "thumbnail": "https://i.ytimg.com/vi/78E4rKu-EhI/mqdefault.jpg",
+    "category": "AI 툴 활용",
+    "score": 75,
+    "summary": "API 키 연결 후 실제 요약이 생성됩니다.",
+    "verdict": "include",
+    "exclude_reason": null,
+    "scored_at": "2026-08-10T22:27:21.580852+00:00"
+  },
+  {
+    "video_id": "fvOiJQX7RI0",
+    "title": "ChatGPT 질문법 7가지｜같은 AI인데 결과가 달라지는 이유",
+    "channel": "AI 인사이트 연구소",
+    "published_at": "2026-08-09T02:21:09Z",
+    "url": "https://youtube.com/watch?v=fvOiJQX7RI0",
+    "thumbnail": "https://i.ytimg.com/vi/fvOiJQX7RI0/mqdefault.jpg",
+    "category": "AI 트렌드",
+    "score": 75,
+    "summary": "API 키 연결 후 실제 요약이 생성됩니다.",
+    "verdict": "include",
+    "exclude_reason": null,
+    "scored_at": "2026-08-10T22:27:21.580852+00:00"
+  },
+  {
+    "video_id": "WMI9ESRNN8c",
+    "title": "AI in Construction Project Management: Practical Uses and Risks",
+    "channel": "Mastt - Home for Construction PMs",
+    "published_at": "2026-08-07T07:51:41Z",
+    "url": "https://youtube.com/watch?v=WMI9ESRNN8c",
+    "thumbnail": "https://i.ytimg.com/vi/WMI9ESRNN8c/mqdefault.jpg",
+    "category": "업무 자동화",
+    "score": 75,
+    "summary": "API 키 연결 후 실제 요약이 생성됩니다.",
+    "verdict": "include",
+    "exclude_reason": null,
+    "scored_at": "2026-08-10T22:27:21.580852+00:00"
+  },
+  {
     "video_id": "vFkJTG_LlNc",
     "title": "ChatGPT 활용법 10가지｜이렇게 쓰면 매일 시간이 줄어듭니다",
     "channel": "AI 인사이트 연구소",
